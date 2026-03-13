@@ -4,11 +4,11 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/apply-ruleset.sh [--repo owner/name] [--docker on|off] [--enforcement active|evaluate|disabled] [--name ruleset-name] [--strict-required] [--dry-run]
+  ./scripts/apply-ruleset.sh [--repo owner/name] [--docker on|off] [--enforcement active|evaluate|disabled] [--name ruleset-name] [--require-code-scanning-high on|off] [--strict-required] [--dry-run]
 
 Examples:
   ./scripts/apply-ruleset.sh --repo owner/project --docker off
-  ./scripts/apply-ruleset.sh --docker on --strict-required
+  ./scripts/apply-ruleset.sh --repo owner/project --docker on --require-code-scanning-high on
 EOF
 }
 
@@ -19,6 +19,7 @@ ENFORCEMENT="active"
 RULESET_NAME="main-security-baseline"
 DRY_RUN="false"
 STRICT_REQUIRED="false"
+REQUIRE_CODE_SCANNING_HIGH="off"
 
 checks=()
 skipped_checks=()
@@ -53,6 +54,10 @@ while [[ $# -gt 0 ]]; do
       RULESET_NAME="${2:-}"
       shift 2
       ;;
+    --require-code-scanning-high)
+      REQUIRE_CODE_SCANNING_HIGH="${2:-}"
+      shift 2
+      ;;
     --strict-required)
       STRICT_REQUIRED="true"
       shift 1
@@ -80,6 +85,11 @@ fi
 
 if [[ "$ENFORCEMENT" != "active" && "$ENFORCEMENT" != "evaluate" && "$ENFORCEMENT" != "disabled" ]]; then
   echo "Invalid --enforcement value: $ENFORCEMENT (expected active|evaluate|disabled)" >&2
+  exit 1
+fi
+
+if [[ "$REQUIRE_CODE_SCANNING_HIGH" != "on" && "$REQUIRE_CODE_SCANNING_HIGH" != "off" ]]; then
+  echo "Invalid --require-code-scanning-high value: $REQUIRE_CODE_SCANNING_HIGH (expected on|off)" >&2
   exit 1
 fi
 
@@ -126,6 +136,24 @@ if [[ ${#checks[@]} -eq 0 ]]; then
   exit 1
 fi
 
+code_scanning_rule=""
+if [[ "$REQUIRE_CODE_SCANNING_HIGH" == "on" ]]; then
+  code_scanning_rule='
+    ,
+    {
+      "type": "code_scanning",
+      "parameters": {
+        "code_scanning_tools": [
+          {
+            "tool": "CodeQL",
+            "alerts_threshold": "none",
+            "security_alerts_threshold": "high_or_higher"
+          }
+        ]
+      }
+    }'
+fi
+
 required_checks_json="["
 for check in "${checks[@]}"; do
   required_checks_json+="{\"context\":\"$check\"},"
@@ -169,7 +197,7 @@ cat > "$payload_file" <<EOF
         "required_status_checks": $required_checks_json,
         "strict_required_status_checks_policy": true
       }
-    }
+    }$code_scanning_rule
   ]
 }
 EOF
@@ -179,6 +207,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
   echo "Docker checks enabled: $DOCKER"
   echo "Ruleset name: $RULESET_NAME"
   echo "Strict required mode: $STRICT_REQUIRED"
+  echo "Code scanning high gate: $REQUIRE_CODE_SCANNING_HIGH"
   echo "Selected required checks:"
   for check in "${checks[@]}"; do
     echo "- $check"
@@ -211,6 +240,7 @@ echo "Required checks:"
 for check in "${checks[@]}"; do
   echo "- $check"
 done
+echo "Code scanning high gate: $REQUIRE_CODE_SCANNING_HIGH"
 
 if [[ ${#skipped_checks[@]} -gt 0 ]]; then
   echo "Skipped checks:"

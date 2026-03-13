@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability privately
+    url: mailto:ralphtaka@gmail.com
+    about: Do not disclose vulnerabilities in public issues.
+  - name: Security policy
+    url: https://github.com/ralphtaka/secure-repo-template/blob/main/SECURITY.md
+    about: Read disclosure process and response targets.

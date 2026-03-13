@@ -5,7 +5,7 @@ Use these local safeguards to catch issues before CI.
 ## One-command setup
 
 ```bash
-./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>
+./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on
 ```
 
 If `gh` authentication is not ready yet, use `--apply-ruleset off` and apply ruleset later.

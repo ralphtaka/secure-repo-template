@@ -4,11 +4,11 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/bootstrap-project.sh --stack <node|python|java> [--docker on|off] [--repo owner/name] [--enforcement active|evaluate|disabled] [--apply-ruleset on|off] [--strict-required]
+  ./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> [--docker on|off] [--repo owner/name] [--enforcement active|evaluate|disabled] [--require-code-scanning-high on|off] [--apply-ruleset on|off] [--strict-required]
 
 Examples:
   ./scripts/bootstrap-project.sh --stack node --docker off --repo owner/project
-  ./scripts/bootstrap-project.sh --stack python --docker on --apply-ruleset off
+  ./scripts/bootstrap-project.sh --stack go --docker on --repo owner/project --require-code-scanning-high on
 EOF
 }
 
@@ -18,6 +18,7 @@ REPO=""
 ENFORCEMENT="active"
 APPLY_RULESET="on"
 STRICT_REQUIRED="false"
+REQUIRE_CODE_SCANNING_HIGH="off"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 while [[ $# -gt 0 ]]; do
@@ -36,6 +37,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --enforcement)
       ENFORCEMENT="${2:-}"
+      shift 2
+      ;;
+    --require-code-scanning-high)
+      REQUIRE_CODE_SCANNING_HIGH="${2:-}"
       shift 2
       ;;
     --apply-ruleset)
@@ -79,11 +84,16 @@ if [[ "$APPLY_RULESET" != "on" && "$APPLY_RULESET" != "off" ]]; then
   exit 1
 fi
 
+if [[ "$REQUIRE_CODE_SCANNING_HIGH" != "on" && "$REQUIRE_CODE_SCANNING_HIGH" != "off" ]]; then
+  echo "Invalid --require-code-scanning-high value: $REQUIRE_CODE_SCANNING_HIGH (expected on|off)" >&2
+  exit 1
+fi
+
 "$ROOT_DIR/scripts/init-project.sh" --stack "$STACK" --docker "$DOCKER"
 "$ROOT_DIR/scripts/install-hooks.sh"
 
 if [[ "$APPLY_RULESET" == "on" ]]; then
-  cmd=("$ROOT_DIR/scripts/apply-ruleset.sh" --docker "$DOCKER" --enforcement "$ENFORCEMENT")
+  cmd=("$ROOT_DIR/scripts/apply-ruleset.sh" --docker "$DOCKER" --enforcement "$ENFORCEMENT" --require-code-scanning-high "$REQUIRE_CODE_SCANNING_HIGH")
   if [[ -n "$REPO" ]]; then
     cmd+=(--repo "$REPO")
   fi

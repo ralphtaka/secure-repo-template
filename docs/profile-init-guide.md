@@ -9,20 +9,20 @@ Before running profile init, template default Dependabot only updates GitHub Act
 ## Command
 
 ```bash
-./scripts/init-project.sh --stack <node|python|java> --docker <on|off>
+./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>
 ```
 
 Or run everything in one step:
 
 ```bash
-./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>
+./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on
 ```
 
 Examples:
 
 ```bash
 ./scripts/init-project.sh --stack node --docker off
-./scripts/init-project.sh --stack python --docker on
+./scripts/init-project.sh --stack go --docker on
 ```
 
 ## What the script changes

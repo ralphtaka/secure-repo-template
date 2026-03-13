@@ -6,8 +6,8 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] Click `Use this template` on GitHub.
 - [ ] Create new repo with private visibility by default.
 - [ ] Clone the new repo locally and confirm default branch is `main`.
-- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>`.
-- [ ] Or run manually: `./scripts/init-project.sh --stack <node|python|java> --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>`.
+- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on`.
+- [ ] Or run manually: `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on`.
 
 ## B. GitHub settings checklist
 
@@ -28,6 +28,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] `Settings -> Rules -> New ruleset` for `main`.
 - [ ] Use `docs/branch-ruleset-template.md` as baseline.
 - [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>` (`--strict-required` optional).
+- [ ] (Recommended) include CodeQL high gate: add `--require-code-scanning-high on` when applying ruleset.
 - [ ] Require pull request before merge.
 - [ ] Block force pushes.
 - [ ] Block branch deletion.
@@ -40,7 +41,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] If Docker enabled, also require `container-scan` and `dockerfile-lint`.
 
 ### Optional Docker module
-- [ ] If project ships Docker image, run `./scripts/init-project.sh --stack <node|python|java> --docker on` (or manually rename `.github/workflows/container-scan.yml.disabled`).
+- [ ] If project ships Docker image, run `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker on` (or manually rename `.github/workflows/container-scan.yml.disabled`).
 - [ ] Run one manual workflow dispatch for `container-scan` and verify success.
 - [ ] Run one manual workflow dispatch for `dockerfile-lint` and verify success.
 
@@ -59,6 +60,7 @@ Expected:
 - `git status` is clean before first feature work.
 - No placeholder contacts remain.
 - No unpinned actions remain in workflows.
+- PR/Issue templates exist in `.github/`.
 - `codeql.yml` exists in `.github/workflows/`.
 - `ci.yml` exists in `.github/workflows/`.
 - `dependency-audit-nightly.yml` exists in `.github/workflows/`.

@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Run tests
+        run: |
+          if [ ! -f Cargo.toml ]; then
+            echo "Cargo.toml not found"
+            exit 1
+          fi
+          if [ -f Cargo.lock ]; then
+            cargo test --locked
+          else
+            cargo test
+          fi

@@ -34,10 +34,18 @@ Target:
 ./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>
 ```
 
+With CodeQL high severity gate:
+
+```bash
+./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on
+```
+
 Script behavior:
 - Auto-detects enabled workflows and only includes matching check contexts
 - Prevents accidental lockout when `ci.yml` or `codeql.yml` has not been generated yet
 - Use `--strict-required` if you want missing expected checks to fail immediately
+- Use `--require-code-scanning-high on` to add a ruleset gate that blocks PRs with CodeQL security alerts `high_or_higher`
+- Code scanning gate requires GitHub code scanning to be enabled in repository security settings
 
 Use `--dry-run` first to review payload:
 

@@ -6,6 +6,8 @@ Profiles let you keep one shared security baseline while applying only the langu
 - `node`
 - `python`
 - `java`
+- `go`
+- `rust`
 
 ## Profile contents
 - `dependabot.yml`: language-specific Dependabot config (no Docker updates)
@@ -14,6 +16,9 @@ Profiles let you keep one shared security baseline while applying only the langu
 - `ci.yml`: language-specific CI test workflow
 - `smoke/`: minimal runnable scaffold copied only when target files do not exist
 - `gitignore.snippet`: language-specific `.gitignore` entries
+
+Note:
+- Rust profile `codeql.yml` scans GitHub Actions workflow language (`actions`); Rust code dependency risk is primarily covered by `cargo audit`.
 
 ## Apply a profile
 Run from repo root:

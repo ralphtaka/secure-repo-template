@@ -25,6 +25,8 @@ jobs:
           node=false
           python=false
           java=false
+          go=false
+          rust=false
 
           if [ -f package.json ]; then
             node=true
@@ -35,10 +37,18 @@ jobs:
           if [ -f pom.xml ]; then
             java=true
           fi
+          if [ -f go.mod ]; then
+            go=true
+          fi
+          if [ -f Cargo.toml ]; then
+            rust=true
+          fi
 
           echo "node=$node" >> "$GITHUB_OUTPUT"
           echo "python=$python" >> "$GITHUB_OUTPUT"
           echo "java=$java" >> "$GITHUB_OUTPUT"
+          echo "go=$go" >> "$GITHUB_OUTPUT"
+          echo "rust=$rust" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         if: steps.detect.outputs.node == 'true'
@@ -99,6 +109,31 @@ jobs:
 
           "$MVN" -B -DskipTests org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 "${EXTRA_ARGS[@]}"
 
+      - name: Run govulncheck
+        if: steps.detect.outputs.go == 'true'
+        run: |
+          if ! command -v go >/dev/null 2>&1; then
+            echo "Go toolchain not found on runner."
+            exit 1
+          fi
+          if ! command -v govulncheck >/dev/null 2>&1; then
+            go install golang.org/x/vuln/cmd/govulncheck@latest
+            echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          fi
+          govulncheck ./...
+
+      - name: Run cargo audit
+        if: steps.detect.outputs.rust == 'true'
+        run: |
+          if ! command -v cargo >/dev/null 2>&1; then
+            echo "Rust toolchain not found on runner."
+            exit 1
+          fi
+          if ! command -v cargo-audit >/dev/null 2>&1; then
+            cargo install cargo-audit --locked
+          fi
+          cargo audit
+
       - name: No supported manifests detected
-        if: steps.detect.outputs.node != 'true' && steps.detect.outputs.python != 'true' && steps.detect.outputs.java != 'true'
-        run: echo "No Node/Python/Java dependency manifests detected; dependency audit skipped."
+        if: steps.detect.outputs.node != 'true' && steps.detect.outputs.python != 'true' && steps.detect.outputs.java != 'true' && steps.detect.outputs.go != 'true' && steps.detect.outputs.rust != 'true'
+        run: echo "No Node/Python/Java/Go/Rust dependency manifests detected; dependency audit skipped."

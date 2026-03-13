@@ -7,15 +7,17 @@ A practical GitHub security baseline for freelancers and solo developers.
 ### Baseline controls (enabled by default)
 - Dependabot: automatic dependency update PRs
 - Dependency Review: blocks PRs that introduce vulnerable runtime dependencies
+- Dependency license policy: allowlist-based license compliance checks in dependency review
 - Trivy PR scan: scans vulnerabilities and misconfigurations
 - Gitleaks: secret scanning on pull requests and pushes to `main`
 - Nightly Trivy SARIF upload: post-merge continuous scanning in GitHub code scanning
-- Nightly dependency audit: stack-aware dependency vulnerability checks for Node/Python/Java
+- Nightly dependency audit: stack-aware dependency vulnerability checks for Node/Python/Java/Go/Rust
 - SBOM generation: software bill of materials after pushes to `main`
 - CodeQL: language SAST workflow is applied by profile init
 - CI tests: language-specific test workflow is applied by profile init
 - Dependabot auto-merge: patch-level GitHub Actions updates can auto-merge after checks pass
 - SECURITY.md: vulnerability disclosure policy
+- PR / Issue templates: include security checklist and disclosure routing
 - GitHub Actions pinning: workflows use commit SHA references
 
 ### Optional Docker module (disabled by default)
@@ -27,7 +29,7 @@ A practical GitHub security baseline for freelancers and solo developers.
 Apply one stack profile per new client repo:
 
 ```bash
-./scripts/init-project.sh --stack <node|python|java> --docker <on|off>
+./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>
 ```
 
 This command selects language-specific Dependabot config, applies a managed `.gitignore` profile block, and toggles Docker scanning mode.
@@ -38,7 +40,7 @@ See [`docs/profile-init-guide.md`](docs/profile-init-guide.md) for details.
 ## One-command bootstrap (recommended)
 
 ```bash
-./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>
+./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on
 ```
 
 This runs profile init, installs local hooks, and applies the main ruleset in one step.
@@ -64,9 +66,11 @@ Require these status checks:
 Recommended:
 - Require pull request before merge
 - Block force pushes and branch deletion
+- In ruleset, optionally enforce CodeQL security results `high_or_higher` by using:
+- `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on`
 
 ## Enable Docker scan when needed
-1. Run `./scripts/init-project.sh --stack <node|python|java> --docker on` (or rename `.github/workflows/container-scan.yml.disabled` manually).
+1. Run `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker on` (or rename `.github/workflows/container-scan.yml.disabled` manually).
 2. Verify your `Dockerfile` builds successfully in CI (`docker build .`).
 3. If Docker is mandatory in the project, add `container-scan` and `dockerfile-lint` to required status checks on `main`.
 4. If needed, track accepted risks in `.trivyignore` with ticket/justification.
@@ -74,10 +78,11 @@ Recommended:
 ## Project kickoff checklist
 - Use [`docs/client-project-kickoff-checklist.md`](docs/client-project-kickoff-checklist.md) for client repo setup, GitHub security toggles, and Day 1 verification commands.
 - Ruleset baseline is documented in [`docs/branch-ruleset-template.md`](docs/branch-ruleset-template.md).
+- Workflow diagram is documented in [`docs/security-workflow-overview.md`](docs/security-workflow-overview.md).
 
 ## Local guardrails
 - Install local hooks: `./scripts/install-hooks.sh`
-- Apply ruleset by CLI: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>` (`--strict-required` optional)
+- Apply ruleset by CLI: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on` (`--strict-required` optional)
 - Vulnerability SLA baseline: [`docs/vulnerability-sla.md`](docs/vulnerability-sla.md)
 
 ## Files included
@@ -93,9 +98,13 @@ Recommended:
 - docs/profile-init-guide.md
 - docs/branch-ruleset-template.md
 - docs/local-guardrails.md
+- docs/security-workflow-overview.md
 - docs/vulnerability-sla.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
+- .github/PULL_REQUEST_TEMPLATE.md
+- .github/ISSUE_TEMPLATE/config.yml
+- .github/ISSUE_TEMPLATE/security-hardening.md
 - .github/workflows/dependabot-automerge.yml
 - .github/workflows/security-pr.yml
 - .github/workflows/secret-scan.yml
@@ -127,6 +136,21 @@ Recommended:
 - profiles/java/smoke/pom.xml
 - profiles/java/smoke/src/test/java/com/example/SmokeTest.java
 - profiles/java/gitignore.snippet
+- profiles/go/dependabot.yml
+- profiles/go/dependabot-docker.yml
+- profiles/go/codeql.yml
+- profiles/go/ci.yml
+- profiles/go/smoke/go.mod
+- profiles/go/smoke/main.go
+- profiles/go/smoke/main_test.go
+- profiles/go/gitignore.snippet
+- profiles/rust/dependabot.yml
+- profiles/rust/dependabot-docker.yml
+- profiles/rust/codeql.yml
+- profiles/rust/ci.yml
+- profiles/rust/smoke/Cargo.toml
+- profiles/rust/smoke/src/lib.rs
+- profiles/rust/gitignore.snippet
 - scripts/init-project.sh
 - scripts/bootstrap-project.sh
 - scripts/install-hooks.sh

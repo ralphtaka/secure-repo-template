@@ -4,11 +4,11 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/init-project.sh --stack <node|python|java> [--docker <on|off>]
+  ./scripts/init-project.sh --stack <node|python|java|go|rust> [--docker <on|off>]
 
 Examples:
   ./scripts/init-project.sh --stack node --docker off
-  ./scripts/init-project.sh --stack python --docker on
+  ./scripts/init-project.sh --stack go --docker on
 EOF
 }
 
@@ -43,7 +43,7 @@ if [[ -z "$STACK" ]]; then
   exit 1
 fi
 
-if [[ "$STACK" != "node" && "$STACK" != "python" && "$STACK" != "java" ]]; then
+if [[ "$STACK" != "node" && "$STACK" != "python" && "$STACK" != "java" && "$STACK" != "go" && "$STACK" != "rust" ]]; then
   echo "Invalid --stack value: $STACK" >&2
   exit 1
 fi
