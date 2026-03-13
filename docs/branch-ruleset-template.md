@@ -34,6 +34,11 @@ Target:
 ./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>
 ```
 
+Script behavior:
+- Auto-detects enabled workflows and only includes matching check contexts
+- Prevents accidental lockout when `ci.yml` or `codeql.yml` has not been generated yet
+- Use `--strict-required` if you want missing expected checks to fail immediately
+
 Use `--dry-run` first to review payload:
 
 ```bash

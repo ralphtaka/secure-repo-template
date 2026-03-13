@@ -6,8 +6,8 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] Click `Use this template` on GitHub.
 - [ ] Create new repo with private visibility by default.
 - [ ] Clone the new repo locally and confirm default branch is `main`.
-- [ ] Run profile init: `./scripts/init-project.sh --stack <node|python|java> --docker <on|off>`.
-- [ ] Install local hooks: `./scripts/install-hooks.sh`.
+- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>`.
+- [ ] Or run manually: `./scripts/init-project.sh --stack <node|python|java> --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>`.
 
 ## B. GitHub settings checklist
 
@@ -27,7 +27,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 ### Branch protection (Rulesets)
 - [ ] `Settings -> Rules -> New ruleset` for `main`.
 - [ ] Use `docs/branch-ruleset-template.md` as baseline.
-- [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>`.
+- [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>` (`--strict-required` optional).
 - [ ] Require pull request before merge.
 - [ ] Block force pushes.
 - [ ] Block branch deletion.
@@ -61,6 +61,7 @@ Expected:
 - No unpinned actions remain in workflows.
 - `codeql.yml` exists in `.github/workflows/`.
 - `ci.yml` exists in `.github/workflows/`.
+- `dependency-audit-nightly.yml` exists in `.github/workflows/`.
 
 If Docker is enabled:
 

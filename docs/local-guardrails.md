@@ -2,6 +2,14 @@
 
 Use these local safeguards to catch issues before CI.
 
+## One-command setup
+
+```bash
+./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>
+```
+
+If `gh` authentication is not ready yet, use `--apply-ruleset off` and apply ruleset later.
+
 ## Install Git hooks
 
 ```bash

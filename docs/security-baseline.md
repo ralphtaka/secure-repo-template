@@ -8,6 +8,7 @@
 - Trivy PR scan: fails on HIGH / CRITICAL vulnerabilities and misconfigurations
 - Gitleaks: detects likely secrets in pull requests and pushes to `main`
 - Nightly Trivy: continues scanning after merge and uploads SARIF to GitHub code scanning
+- Nightly dependency audit: stack-aware package vulnerability checks for Node/Python/Java
 - SBOM: generates a software bill of materials for inventory and customer delivery
 - CodeQL: language SAST workflow is applied by stack profile
 - CI tests: language-specific CI workflow is applied by stack profile
@@ -26,3 +27,7 @@ This package is best for:
 - freelance client projects
 - solo SaaS repos
 - internal tools that ship with Docker
+
+## Setup flow
+1. `./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>`
+2. Open one smoke PR and confirm checks.

@@ -12,6 +12,7 @@ Profiles let you keep one shared security baseline while applying only the langu
 - `dependabot-docker.yml`: same as above, plus Docker ecosystem updates
 - `codeql.yml`: language-specific CodeQL workflow
 - `ci.yml`: language-specific CI test workflow
+- `smoke/`: minimal runnable scaffold copied only when target files do not exist
 - `gitignore.snippet`: language-specific `.gitignore` entries
 
 ## Apply a profile

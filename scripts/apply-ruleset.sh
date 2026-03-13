@@ -4,19 +4,36 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/apply-ruleset.sh [--repo owner/name] [--docker on|off] [--enforcement active|evaluate|disabled] [--name ruleset-name] [--dry-run]
+  ./scripts/apply-ruleset.sh [--repo owner/name] [--docker on|off] [--enforcement active|evaluate|disabled] [--name ruleset-name] [--strict-required] [--dry-run]
 
 Examples:
   ./scripts/apply-ruleset.sh --repo owner/project --docker off
-  ./scripts/apply-ruleset.sh --docker on
+  ./scripts/apply-ruleset.sh --docker on --strict-required
 EOF
 }
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO=""
 DOCKER="off"
 ENFORCEMENT="active"
 RULESET_NAME="main-security-baseline"
 DRY_RUN="false"
+STRICT_REQUIRED="false"
+
+checks=()
+skipped_checks=()
+
+add_check_if_workflow_exists() {
+  local context="$1"
+  local workflow_file="$2"
+  local workflow_path="$ROOT_DIR/.github/workflows/$workflow_file"
+
+  if [[ -f "$workflow_path" ]]; then
+    checks+=("$context")
+  else
+    skipped_checks+=("$context (missing .github/workflows/$workflow_file)")
+  fi
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,6 +52,10 @@ while [[ $# -gt 0 ]]; do
     --name)
       RULESET_NAME="${2:-}"
       shift 2
+      ;;
+    --strict-required)
+      STRICT_REQUIRED="true"
+      shift 1
       ;;
     --dry-run)
       DRY_RUN="true"
@@ -68,7 +89,7 @@ if ! command -v gh >/dev/null 2>&1; then
 fi
 
 if [[ -z "$REPO" ]]; then
-  remote_url="$(git remote get-url origin 2>/dev/null || true)"
+  remote_url="$(git -C "$ROOT_DIR" remote get-url origin 2>/dev/null || true)"
   if [[ "$remote_url" =~ ^git@github.com:([^/]+)/([^/.]+)(\.git)?$ ]]; then
     REPO="${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
   elif [[ "$remote_url" =~ ^https://github.com/([^/]+)/([^/.]+)(\.git)?$ ]]; then
@@ -81,9 +102,28 @@ if [[ -z "$REPO" ]]; then
   exit 1
 fi
 
-checks=("dependency-review" "trivy-pr" "gitleaks" "codeql" "ci")
+add_check_if_workflow_exists "dependency-review" "security-pr.yml"
+add_check_if_workflow_exists "trivy-pr" "security-pr.yml"
+add_check_if_workflow_exists "gitleaks" "secret-scan.yml"
+add_check_if_workflow_exists "codeql" "codeql.yml"
+add_check_if_workflow_exists "ci" "ci.yml"
+
 if [[ "$DOCKER" == "on" ]]; then
-  checks+=("container-scan" "dockerfile-lint")
+  add_check_if_workflow_exists "container-scan" "container-scan.yml"
+  add_check_if_workflow_exists "dockerfile-lint" "dockerfile-lint.yml"
+fi
+
+if [[ "$STRICT_REQUIRED" == "true" && ${#skipped_checks[@]} -gt 0 ]]; then
+  echo "Strict mode failed: required checks were skipped." >&2
+  for item in "${skipped_checks[@]}"; do
+    echo "- $item" >&2
+  done
+  exit 1
+fi
+
+if [[ ${#checks[@]} -eq 0 ]]; then
+  echo "No status checks detected from enabled workflows. Ruleset was not applied." >&2
+  exit 1
 fi
 
 required_checks_json="["
@@ -138,6 +178,17 @@ if [[ "$DRY_RUN" == "true" ]]; then
   echo "Repo: $REPO"
   echo "Docker checks enabled: $DOCKER"
   echo "Ruleset name: $RULESET_NAME"
+  echo "Strict required mode: $STRICT_REQUIRED"
+  echo "Selected required checks:"
+  for check in "${checks[@]}"; do
+    echo "- $check"
+  done
+  if [[ ${#skipped_checks[@]} -gt 0 ]]; then
+    echo "Skipped checks:"
+    for item in "${skipped_checks[@]}"; do
+      echo "- $item"
+    done
+  fi
   cat "$payload_file"
   exit 0
 fi
@@ -160,3 +211,10 @@ echo "Required checks:"
 for check in "${checks[@]}"; do
   echo "- $check"
 done
+
+if [[ ${#skipped_checks[@]} -gt 0 ]]; then
+  echo "Skipped checks:"
+  for item in "${skipped_checks[@]}"; do
+    echo "- $item"
+  done
+fi

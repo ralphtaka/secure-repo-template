@@ -12,6 +12,12 @@ Before running profile init, template default Dependabot only updates GitHub Act
 ./scripts/init-project.sh --stack <node|python|java> --docker <on|off>
 ```
 
+Or run everything in one step:
+
+```bash
+./scripts/bootstrap-project.sh --stack <node|python|java> --docker <on|off> --repo <owner/repo>
+```
+
 Examples:
 
 ```bash
@@ -23,6 +29,7 @@ Examples:
 - `.github/dependabot.yml`: switched to the selected language profile
 - `.github/workflows/codeql.yml`: writes language-specific CodeQL workflow
 - `.github/workflows/ci.yml`: writes language-specific CI workflow
+- Smoke scaffold: copies minimal runnable files only when target files do not already exist
 - `.gitignore`: appends or replaces a managed profile block
 - `.stack-profile`: records chosen stack and docker mode
 - Docker scan workflow is toggled by mode:

@@ -67,6 +67,9 @@ PROFILE_MARKER_START="# >>> stack-profile:start >>>"
 PROFILE_MARKER_END="# <<< stack-profile:end <<<"
 CODEQL_SOURCE="$PROFILE_DIR/codeql.yml"
 CI_SOURCE="$PROFILE_DIR/ci.yml"
+SMOKE_SOURCE="$PROFILE_DIR/smoke"
+created_smoke_files=()
+skipped_smoke_files=()
 
 if [[ "$DOCKER" == "on" ]]; then
   DEPENDABOT_SOURCE="$PROFILE_DIR/dependabot-docker.yml"
@@ -97,6 +100,22 @@ fi
 cp "$DEPENDABOT_SOURCE" "$DEPENDABOT_TARGET"
 cp "$CODEQL_SOURCE" "$CODEQL_TARGET"
 cp "$CI_SOURCE" "$CI_TARGET"
+
+if [[ -d "$SMOKE_SOURCE" ]]; then
+  while IFS= read -r -d '' source_file; do
+    rel_path="${source_file#$SMOKE_SOURCE/}"
+    target_file="$ROOT_DIR/$rel_path"
+
+    if [[ -e "$target_file" ]]; then
+      skipped_smoke_files+=("$rel_path")
+      continue
+    fi
+
+    mkdir -p "$(dirname "$target_file")"
+    cp "$source_file" "$target_file"
+    created_smoke_files+=("$rel_path")
+  done < <(find "$SMOKE_SOURCE" -type f -print0)
+fi
 
 TMP_FILE="$(mktemp)"
 awk -v start="$PROFILE_MARKER_START" -v end="$PROFILE_MARKER_END" '
@@ -154,4 +173,20 @@ if [[ "$DOCKER" == "on" ]]; then
 else
   echo "- .github/workflows/container-scan.yml.disabled (kept disabled)"
   echo "- .github/workflows/dockerfile-lint.yml.disabled (kept disabled)"
+fi
+
+if [[ ${#created_smoke_files[@]} -gt 0 ]]; then
+  echo "- smoke scaffold files created:"
+  for path in "${created_smoke_files[@]}"; do
+    echo "  - $path"
+  done
+else
+  echo "- smoke scaffold files created: none"
+fi
+
+if [[ ${#skipped_smoke_files[@]} -gt 0 ]]; then
+  echo "- smoke scaffold files skipped (already existed):"
+  for path in "${skipped_smoke_files[@]}"; do
+    echo "  - $path"
+  done
 fi
