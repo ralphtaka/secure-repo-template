@@ -58,11 +58,15 @@ PROFILE_DIR="$ROOT_DIR/profiles/$STACK"
 DEPENDABOT_TARGET="$ROOT_DIR/.github/dependabot.yml"
 GITIGNORE_TARGET="$ROOT_DIR/.gitignore"
 CODEQL_TARGET="$ROOT_DIR/.github/workflows/codeql.yml"
+CI_TARGET="$ROOT_DIR/.github/workflows/ci.yml"
 DOCKER_SCAN_ENABLED="$ROOT_DIR/.github/workflows/container-scan.yml"
 DOCKER_SCAN_DISABLED="$ROOT_DIR/.github/workflows/container-scan.yml.disabled"
+DOCKER_LINT_ENABLED="$ROOT_DIR/.github/workflows/dockerfile-lint.yml"
+DOCKER_LINT_DISABLED="$ROOT_DIR/.github/workflows/dockerfile-lint.yml.disabled"
 PROFILE_MARKER_START="# >>> stack-profile:start >>>"
 PROFILE_MARKER_END="# <<< stack-profile:end <<<"
 CODEQL_SOURCE="$PROFILE_DIR/codeql.yml"
+CI_SOURCE="$PROFILE_DIR/ci.yml"
 
 if [[ "$DOCKER" == "on" ]]; then
   DEPENDABOT_SOURCE="$PROFILE_DIR/dependabot-docker.yml"
@@ -85,8 +89,14 @@ if [[ ! -f "$CODEQL_SOURCE" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$CI_SOURCE" ]]; then
+  echo "Missing profile file: $CI_SOURCE" >&2
+  exit 1
+fi
+
 cp "$DEPENDABOT_SOURCE" "$DEPENDABOT_TARGET"
 cp "$CODEQL_SOURCE" "$CODEQL_TARGET"
+cp "$CI_SOURCE" "$CI_TARGET"
 
 TMP_FILE="$(mktemp)"
 awk -v start="$PROFILE_MARKER_START" -v end="$PROFILE_MARKER_END" '
@@ -109,9 +119,15 @@ if [[ "$DOCKER" == "on" ]]; then
   if [[ -f "$DOCKER_SCAN_DISABLED" ]]; then
     mv "$DOCKER_SCAN_DISABLED" "$DOCKER_SCAN_ENABLED"
   fi
+  if [[ -f "$DOCKER_LINT_DISABLED" ]]; then
+    mv "$DOCKER_LINT_DISABLED" "$DOCKER_LINT_ENABLED"
+  fi
 else
   if [[ -f "$DOCKER_SCAN_ENABLED" ]]; then
     mv "$DOCKER_SCAN_ENABLED" "$DOCKER_SCAN_DISABLED"
+  fi
+  if [[ -f "$DOCKER_LINT_ENABLED" ]]; then
+    mv "$DOCKER_LINT_ENABLED" "$DOCKER_LINT_DISABLED"
   fi
 fi
 
@@ -129,10 +145,13 @@ echo
 echo "Updated files:"
 echo "- .github/dependabot.yml"
 echo "- .github/workflows/codeql.yml"
+echo "- .github/workflows/ci.yml"
 echo "- .gitignore"
 echo "- .stack-profile"
 if [[ "$DOCKER" == "on" ]]; then
   echo "- .github/workflows/container-scan.yml (enabled)"
+  echo "- .github/workflows/dockerfile-lint.yml (enabled)"
 else
   echo "- .github/workflows/container-scan.yml.disabled (kept disabled)"
+  echo "- .github/workflows/dockerfile-lint.yml.disabled (kept disabled)"
 fi

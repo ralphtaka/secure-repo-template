@@ -1,0 +1,33 @@
+name: dockerfile-lint
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/dockerfile-lint.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/dockerfile-lint.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dockerfile-lint:
+    name: dockerfile-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning

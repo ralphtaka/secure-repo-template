@@ -17,3 +17,7 @@ Contact:
 - Acknowledgement: within 3 business days
 - Initial triage: within 7 business days
 - Mitigation / fix target: based on severity and exploitability
+
+## Remediation SLA
+
+Use the baseline in `docs/vulnerability-sla.md` for client projects unless contract terms override it.

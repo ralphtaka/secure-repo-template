@@ -7,12 +7,14 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] Create new repo with private visibility by default.
 - [ ] Clone the new repo locally and confirm default branch is `main`.
 - [ ] Run profile init: `./scripts/init-project.sh --stack <node|python|java> --docker <on|off>`.
+- [ ] Install local hooks: `./scripts/install-hooks.sh`.
 
 ## B. GitHub settings checklist
 
 ### Repository setup
 - [ ] `Settings -> General -> Features`: disable unused features (for example Projects/Wiki) if not needed by the client.
 - [ ] `Settings -> General -> Pull Requests`: enable auto delete head branches.
+- [ ] `Settings -> General -> Pull Requests`: enable auto-merge (required for Dependabot auto-merge workflow).
 - [ ] `Settings -> General`: ensure `Template repository` is OFF for client delivery repos.
 
 ### Security
@@ -25,6 +27,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 ### Branch protection (Rulesets)
 - [ ] `Settings -> Rules -> New ruleset` for `main`.
 - [ ] Use `docs/branch-ruleset-template.md` as baseline.
+- [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>`.
 - [ ] Require pull request before merge.
 - [ ] Block force pushes.
 - [ ] Block branch deletion.
@@ -33,11 +36,13 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] `trivy-pr`
 - [ ] `gitleaks`
 - [ ] `codeql`
-- [ ] If Docker enabled, also require `container-scan`.
+- [ ] `ci`
+- [ ] If Docker enabled, also require `container-scan` and `dockerfile-lint`.
 
 ### Optional Docker module
 - [ ] If project ships Docker image, run `./scripts/init-project.sh --stack <node|python|java> --docker on` (or manually rename `.github/workflows/container-scan.yml.disabled`).
 - [ ] Run one manual workflow dispatch for `container-scan` and verify success.
+- [ ] Run one manual workflow dispatch for `dockerfile-lint` and verify success.
 
 ## C. Day 1 verification commands
 
@@ -55,6 +60,7 @@ Expected:
 - No placeholder contacts remain.
 - No unpinned actions remain in workflows.
 - `codeql.yml` exists in `.github/workflows/`.
+- `ci.yml` exists in `.github/workflows/`.
 
 If Docker is enabled:
 

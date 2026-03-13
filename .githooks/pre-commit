@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+staged_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if [[ -z "$staged_files" ]]; then
+  exit 0
+fi
+
+blocked_pattern='(^|/)\.env($|\.|/)|\.(pem|key|p12|pfx|jks)$|(^|/)id_rsa$|(^|/)id_ed25519$|\.tfstate(\.|$)'
+
+if echo "$staged_files" | grep -Eqi "$blocked_pattern"; then
+  echo "Blocked: staged files include likely secret material."
+  echo "Review .gitignore or remove sensitive files from the commit."
+  exit 1
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  if gitleaks git --help >/dev/null 2>&1; then
+    gitleaks git --staged --redact --config .gitleaks.toml
+  elif gitleaks protect --help >/dev/null 2>&1; then
+    gitleaks protect --staged --redact --config .gitleaks.toml
+  else
+    echo "Warning: gitleaks is installed but staged scan command was not detected; skipping gitleaks pre-commit scan."
+  fi
+else
+  echo "Warning: gitleaks not found locally; install it for pre-commit secret scanning."
+fi

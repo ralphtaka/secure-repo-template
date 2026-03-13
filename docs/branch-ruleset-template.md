@@ -16,15 +16,29 @@ Always require:
 - `trivy-pr`
 - `gitleaks`
 - `codeql`
+- `ci`
 
 If Docker is enabled, also require:
 - `container-scan`
+- `dockerfile-lint`
 
 ## Where to configure
 `Settings -> Rules -> New ruleset -> Branch ruleset`
 
 Target:
 - Branch name pattern: `main`
+
+## Apply via script (recommended)
+
+```bash
+./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>
+```
+
+Use `--dry-run` first to review payload:
+
+```bash
+./scripts/apply-ruleset.sh --repo <owner/repo> --docker off --dry-run
+```
 
 ## Day 1 sanity check
 After enabling ruleset:

@@ -10,7 +10,8 @@ This repository ships Docker scanning as an optional module.
 1. Rename `.github/workflows/container-scan.yml.disabled` to `.github/workflows/container-scan.yml`.
 2. Commit and push.
 3. Trigger the workflow once with `workflow_dispatch` and confirm it passes.
-4. Add `container-scan` to required checks on `main` if Docker is part of release.
+4. Rename `.github/workflows/dockerfile-lint.yml.disabled` to `.github/workflows/dockerfile-lint.yml`.
+5. Add `container-scan` and `dockerfile-lint` to required checks on `main` if Docker is part of release.
 
 ## Expected prerequisites
 - A valid `Dockerfile` at repo root.

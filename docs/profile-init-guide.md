@@ -22,11 +22,15 @@ Examples:
 ## What the script changes
 - `.github/dependabot.yml`: switched to the selected language profile
 - `.github/workflows/codeql.yml`: writes language-specific CodeQL workflow
+- `.github/workflows/ci.yml`: writes language-specific CI workflow
 - `.gitignore`: appends or replaces a managed profile block
 - `.stack-profile`: records chosen stack and docker mode
 - Docker scan workflow is toggled by mode:
 - `--docker on` enables `.github/workflows/container-scan.yml`
 - `--docker off` keeps `.github/workflows/container-scan.yml.disabled`
+- Dockerfile lint workflow is toggled by mode:
+- `--docker on` enables `.github/workflows/dockerfile-lint.yml`
+- `--docker off` keeps `.github/workflows/dockerfile-lint.yml.disabled`
 
 ## Expected next steps
 1. Review the generated diff.

@@ -12,11 +12,14 @@ A practical GitHub security baseline for freelancers and solo developers.
 - Nightly Trivy SARIF upload: post-merge continuous scanning in GitHub code scanning
 - SBOM generation: software bill of materials after pushes to `main`
 - CodeQL: language SAST workflow is applied by profile init
+- CI tests: language-specific test workflow is applied by profile init
+- Dependabot auto-merge: patch-level GitHub Actions updates can auto-merge after checks pass
 - SECURITY.md: vulnerability disclosure policy
 - GitHub Actions pinning: workflows use commit SHA references
 
 ### Optional Docker module (disabled by default)
 - Container image scan workflow is included as `.github/workflows/container-scan.yml.disabled`
+- Dockerfile lint workflow is included as `.github/workflows/dockerfile-lint.yml.disabled`
 - Enable it only for repositories that build and ship Docker images
 
 ## Language profile init
@@ -46,6 +49,7 @@ Require these status checks:
 - trivy-pr
 - gitleaks
 - codeql
+- ci
 
 Recommended:
 - Require pull request before merge
@@ -54,12 +58,17 @@ Recommended:
 ## Enable Docker scan when needed
 1. Run `./scripts/init-project.sh --stack <node|python|java> --docker on` (or rename `.github/workflows/container-scan.yml.disabled` manually).
 2. Verify your `Dockerfile` builds successfully in CI (`docker build .`).
-3. If Docker is mandatory in the project, add `container-scan` to required status checks on `main`.
+3. If Docker is mandatory in the project, add `container-scan` and `dockerfile-lint` to required status checks on `main`.
 4. If needed, track accepted risks in `.trivyignore` with ticket/justification.
 
 ## Project kickoff checklist
 - Use [`docs/client-project-kickoff-checklist.md`](docs/client-project-kickoff-checklist.md) for client repo setup, GitHub security toggles, and Day 1 verification commands.
 - Ruleset baseline is documented in [`docs/branch-ruleset-template.md`](docs/branch-ruleset-template.md).
+
+## Local guardrails
+- Install local hooks: `./scripts/install-hooks.sh`
+- Apply ruleset by CLI: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>`
+- Vulnerability SLA baseline: [`docs/vulnerability-sla.md`](docs/vulnerability-sla.md)
 
 ## Files included
 
@@ -73,24 +82,34 @@ Recommended:
 - docs/client-project-kickoff-checklist.md
 - docs/profile-init-guide.md
 - docs/branch-ruleset-template.md
+- docs/local-guardrails.md
+- docs/vulnerability-sla.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
+- .github/workflows/dependabot-automerge.yml
 - .github/workflows/security-pr.yml
 - .github/workflows/secret-scan.yml
 - .github/workflows/security-nightly.yml
 - .github/workflows/sbom.yml
 - .github/workflows/container-scan.yml.disabled
+- .github/workflows/dockerfile-lint.yml.disabled
+- .githooks/pre-commit
 - profiles/README.md
 - profiles/node/dependabot.yml
 - profiles/node/dependabot-docker.yml
 - profiles/node/codeql.yml
+- profiles/node/ci.yml
 - profiles/node/gitignore.snippet
 - profiles/python/dependabot.yml
 - profiles/python/dependabot-docker.yml
 - profiles/python/codeql.yml
+- profiles/python/ci.yml
 - profiles/python/gitignore.snippet
 - profiles/java/dependabot.yml
 - profiles/java/dependabot-docker.yml
 - profiles/java/codeql.yml
+- profiles/java/ci.yml
 - profiles/java/gitignore.snippet
 - scripts/init-project.sh
+- scripts/install-hooks.sh
+- scripts/apply-ruleset.sh
