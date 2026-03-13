@@ -26,6 +26,7 @@ Apply one stack profile per new client repo:
 ```
 
 This command selects language-specific Dependabot config, applies a managed `.gitignore` profile block, and toggles Docker scanning mode.
+Template default `.github/dependabot.yml` only tracks GitHub Actions to avoid noise before profile init.
 See [`docs/profile-init-guide.md`](docs/profile-init-guide.md) for details.
 
 ## Required GitHub settings

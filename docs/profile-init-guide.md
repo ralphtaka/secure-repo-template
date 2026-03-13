@@ -4,6 +4,7 @@ Use profiles to apply language-specific defaults on top of the shared security b
 
 ## When to run
 Run once right after creating a new repository from this template.
+Before running profile init, template default Dependabot only updates GitHub Actions.
 
 ## Command
 

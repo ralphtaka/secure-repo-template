@@ -1,48 +1,9 @@
 version: 2
 
 updates:
+  # Keep the template repo itself low-noise.
+  # Client repos should run scripts/init-project.sh to apply stack-specific updates.
   - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "security"
-
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "security"
-    groups:
-      npm-nonmajor:
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "security"
-
-  - package-ecosystem: "maven"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "security"
-
-  - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
