@@ -21,6 +21,7 @@ Examples:
 
 ## What the script changes
 - `.github/dependabot.yml`: switched to the selected language profile
+- `.github/workflows/codeql.yml`: writes language-specific CodeQL workflow
 - `.gitignore`: appends or replaces a managed profile block
 - `.stack-profile`: records chosen stack and docker mode
 - Docker scan workflow is toggled by mode:

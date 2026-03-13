@@ -24,6 +24,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 
 ### Branch protection (Rulesets)
 - [ ] `Settings -> Rules -> New ruleset` for `main`.
+- [ ] Use `docs/branch-ruleset-template.md` as baseline.
 - [ ] Require pull request before merge.
 - [ ] Block force pushes.
 - [ ] Block branch deletion.
@@ -31,6 +32,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] `dependency-review`
 - [ ] `trivy-pr`
 - [ ] `gitleaks`
+- [ ] `codeql`
 - [ ] If Docker enabled, also require `container-scan`.
 
 ### Optional Docker module
@@ -52,6 +54,7 @@ Expected:
 - `git status` is clean before first feature work.
 - No placeholder contacts remain.
 - No unpinned actions remain in workflows.
+- `codeql.yml` exists in `.github/workflows/`.
 
 If Docker is enabled:
 

@@ -11,6 +11,7 @@ A practical GitHub security baseline for freelancers and solo developers.
 - Gitleaks: secret scanning on pull requests and pushes to `main`
 - Nightly Trivy SARIF upload: post-merge continuous scanning in GitHub code scanning
 - SBOM generation: software bill of materials after pushes to `main`
+- CodeQL: language SAST workflow is applied by profile init
 - SECURITY.md: vulnerability disclosure policy
 - GitHub Actions pinning: workflows use commit SHA references
 
@@ -44,6 +45,7 @@ Require these status checks:
 - dependency-review
 - trivy-pr
 - gitleaks
+- codeql
 
 Recommended:
 - Require pull request before merge
@@ -57,6 +59,7 @@ Recommended:
 
 ## Project kickoff checklist
 - Use [`docs/client-project-kickoff-checklist.md`](docs/client-project-kickoff-checklist.md) for client repo setup, GitHub security toggles, and Day 1 verification commands.
+- Ruleset baseline is documented in [`docs/branch-ruleset-template.md`](docs/branch-ruleset-template.md).
 
 ## Files included
 
@@ -69,6 +72,7 @@ Recommended:
 - docs/docker-security-addon.md
 - docs/client-project-kickoff-checklist.md
 - docs/profile-init-guide.md
+- docs/branch-ruleset-template.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
 - .github/workflows/security-pr.yml
@@ -79,11 +83,14 @@ Recommended:
 - profiles/README.md
 - profiles/node/dependabot.yml
 - profiles/node/dependabot-docker.yml
+- profiles/node/codeql.yml
 - profiles/node/gitignore.snippet
 - profiles/python/dependabot.yml
 - profiles/python/dependabot-docker.yml
+- profiles/python/codeql.yml
 - profiles/python/gitignore.snippet
 - profiles/java/dependabot.yml
 - profiles/java/dependabot-docker.yml
+- profiles/java/codeql.yml
 - profiles/java/gitignore.snippet
 - scripts/init-project.sh

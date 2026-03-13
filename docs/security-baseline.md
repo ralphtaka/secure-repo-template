@@ -9,6 +9,7 @@
 - Gitleaks: detects likely secrets in pull requests and pushes to `main`
 - Nightly Trivy: continues scanning after merge and uploads SARIF to GitHub code scanning
 - SBOM: generates a software bill of materials for inventory and customer delivery
+- CodeQL: language SAST workflow is applied by stack profile
 - SECURITY.md: tells others how to report vulnerabilities
 - GitHub Actions pinning: workflows use commit SHA instead of mutable tags
 
