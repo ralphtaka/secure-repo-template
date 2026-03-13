@@ -18,7 +18,8 @@ Profiles let you keep one shared security baseline while applying only the langu
 - `gitignore.snippet`: language-specific `.gitignore` entries
 
 Note:
-- Rust profile `codeql.yml` scans GitHub Actions workflow language (`actions`); Rust code dependency risk is primarily covered by `cargo audit`.
+- Rust profile `codeql.yml` scans Rust code with `build-mode: none`.
+- Rust dependency risk is primarily covered by `cargo audit` in `dependency-audit-nightly`.
 
 ## Apply a profile
 Run from repo root:
