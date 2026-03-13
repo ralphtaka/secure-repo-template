@@ -1,0 +1,60 @@
+# Client Project Kickoff Checklist
+
+Use this checklist on Day 0/Day 1 after creating a new repo from this template.
+
+## A. Create repo from template
+- [ ] Click `Use this template` on GitHub.
+- [ ] Create new repo with private visibility by default.
+- [ ] Clone the new repo locally and confirm default branch is `main`.
+
+## B. GitHub settings checklist
+
+### Repository setup
+- [ ] `Settings -> General -> Features`: disable unused features (for example Projects/Wiki) if not needed by the client.
+- [ ] `Settings -> General -> Pull Requests`: enable auto delete head branches.
+- [ ] `Settings -> General`: ensure `Template repository` is OFF for client delivery repos.
+
+### Security
+- [ ] `Settings -> Security`: enable `Dependabot alerts`.
+- [ ] `Settings -> Security`: enable `Dependabot security updates`.
+- [ ] `Settings -> Security`: enable `Secret scanning` if available on your plan.
+- [ ] `Settings -> Security`: enable `Code scanning` if available on your plan.
+
+### Branch protection (Rulesets)
+- [ ] `Settings -> Rules -> New ruleset` for `main`.
+- [ ] Require pull request before merge.
+- [ ] Block force pushes.
+- [ ] Block branch deletion.
+- [ ] Require status checks:
+- [ ] `dependency-review`
+- [ ] `trivy-pr`
+- [ ] `gitleaks`
+- [ ] If Docker enabled, also require `container-scan`.
+
+### Optional Docker module
+- [ ] If project ships Docker image, rename `.github/workflows/container-scan.yml.disabled` to `.github/workflows/container-scan.yml`.
+- [ ] Run one manual workflow dispatch for `container-scan` and verify success.
+
+## C. Day 1 verification commands
+
+Run from repo root:
+
+```bash
+git status
+git remote -v
+rg -n "your-email@example.com|example.com" .
+rg -n "uses: .*@(v|main|master|latest)" .github/workflows
+```
+
+Expected:
+- `git status` is clean before first feature work.
+- No placeholder contacts remain.
+- No unpinned actions remain in workflows.
+
+If Docker is enabled:
+
+```bash
+docker build -t local/smoke:day1 .
+```
+
+Then create a small smoke PR (for example README change) and verify required checks pass on GitHub before real development starts.

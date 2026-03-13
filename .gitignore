@@ -1,0 +1,49 @@
+.DS_Store
+.idea/
+.vscode/
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Java
+target/
+*.class
+*.jar
+*.war
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+
+# Secrets and local env
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+id_rsa
+id_ed25519
+
+# Cloud / infra local state
+.aws/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+
+# Reports / security outputs
+reports/
+*.sarif
+*.spdx.json
+*.syft.json
+
+# Misc
+*.log

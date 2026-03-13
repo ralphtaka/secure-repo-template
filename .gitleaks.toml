@@ -1,0 +1,5 @@
+title = "Freelancer baseline"
+
+[allowlist]
+description = "Keep allowlist minimal; add only reviewed false positives."
+paths = []
