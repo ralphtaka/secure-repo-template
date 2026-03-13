@@ -10,6 +10,7 @@ Please do not open a public issue for sensitive vulnerabilities.
 
 Contact:
 - ralphtaka@gmail.com
+- https://www.linkedin.com/in/ralph-li-76749b6a
 
 ## Response Targets
 
