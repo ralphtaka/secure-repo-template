@@ -131,6 +131,7 @@ Recommended:
 - docs/branch-ruleset-template.md
 - docs/local-guardrails.md
 - docs/security-workflow-overview.md
+- docs/todo.md
 - docs/vulnerability-sla.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
