@@ -6,6 +6,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] Click `Use this template` on GitHub.
 - [ ] Create new repo with private visibility by default.
 - [ ] Clone the new repo locally and confirm default branch is `main`.
+- [ ] Run profile init: `./scripts/init-project.sh --stack <node|python|java> --docker <on|off>`.
 
 ## B. GitHub settings checklist
 
@@ -33,7 +34,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] If Docker enabled, also require `container-scan`.
 
 ### Optional Docker module
-- [ ] If project ships Docker image, rename `.github/workflows/container-scan.yml.disabled` to `.github/workflows/container-scan.yml`.
+- [ ] If project ships Docker image, run `./scripts/init-project.sh --stack <node|python|java> --docker on` (or manually rename `.github/workflows/container-scan.yml.disabled`).
 - [ ] Run one manual workflow dispatch for `container-scan` and verify success.
 
 ## C. Day 1 verification commands

@@ -18,6 +18,16 @@ A practical GitHub security baseline for freelancers and solo developers.
 - Container image scan workflow is included as `.github/workflows/container-scan.yml.disabled`
 - Enable it only for repositories that build and ship Docker images
 
+## Language profile init
+Apply one stack profile per new client repo:
+
+```bash
+./scripts/init-project.sh --stack <node|python|java> --docker <on|off>
+```
+
+This command selects language-specific Dependabot config, applies a managed `.gitignore` profile block, and toggles Docker scanning mode.
+See [`docs/profile-init-guide.md`](docs/profile-init-guide.md) for details.
+
 ## Required GitHub settings
 
 ### Security features
@@ -39,7 +49,7 @@ Recommended:
 - Block force pushes and branch deletion
 
 ## Enable Docker scan when needed
-1. Rename `.github/workflows/container-scan.yml.disabled` to `.github/workflows/container-scan.yml`.
+1. Run `./scripts/init-project.sh --stack <node|python|java> --docker on` (or rename `.github/workflows/container-scan.yml.disabled` manually).
 2. Verify your `Dockerfile` builds successfully in CI (`docker build .`).
 3. If Docker is mandatory in the project, add `container-scan` to required status checks on `main`.
 4. If needed, track accepted risks in `.trivyignore` with ticket/justification.
@@ -57,6 +67,7 @@ Recommended:
 - docs/security-baseline.md
 - docs/docker-security-addon.md
 - docs/client-project-kickoff-checklist.md
+- docs/profile-init-guide.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
 - .github/workflows/security-pr.yml
@@ -64,3 +75,14 @@ Recommended:
 - .github/workflows/security-nightly.yml
 - .github/workflows/sbom.yml
 - .github/workflows/container-scan.yml.disabled
+- profiles/README.md
+- profiles/node/dependabot.yml
+- profiles/node/dependabot-docker.yml
+- profiles/node/gitignore.snippet
+- profiles/python/dependabot.yml
+- profiles/python/dependabot-docker.yml
+- profiles/python/gitignore.snippet
+- profiles/java/dependabot.yml
+- profiles/java/dependabot-docker.yml
+- profiles/java/gitignore.snippet
+- scripts/init-project.sh

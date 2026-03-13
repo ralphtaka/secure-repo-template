@@ -7,6 +7,7 @@ This template includes:
 - docs/security-baseline.md
 - docs/docker-security-addon.md
 - docs/client-project-kickoff-checklist.md
+- docs/profile-init-guide.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
 - .github/workflows/security-pr.yml
@@ -14,3 +15,14 @@ This template includes:
 - .github/workflows/security-nightly.yml
 - .github/workflows/sbom.yml
 - .github/workflows/container-scan.yml.disabled
+- profiles/README.md
+- profiles/node/dependabot.yml
+- profiles/node/dependabot-docker.yml
+- profiles/node/gitignore.snippet
+- profiles/python/dependabot.yml
+- profiles/python/dependabot-docker.yml
+- profiles/python/gitignore.snippet
+- profiles/java/dependabot.yml
+- profiles/java/dependabot-docker.yml
+- profiles/java/gitignore.snippet
+- scripts/init-project.sh

@@ -2,23 +2,6 @@
 .idea/
 .vscode/
 
-# Node
-node_modules/
-dist/
-coverage/
-
-# Java
-target/
-*.class
-*.jar
-*.war
-
-# Python
-__pycache__/
-.pytest_cache/
-.venv/
-venv/
-
 # Secrets and local env
 .env
 .env.*
