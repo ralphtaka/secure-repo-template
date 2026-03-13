@@ -13,15 +13,32 @@ Provide a controlled emergency merge path that is auditable and recoverable, eve
 
 #### Minimal implementation plan
 1. Use GitHub Issues as incident records with ID format `INC-YYYYMMDD-###` and label `incident`.
-2. Require break-glass PRs to reference an incident ID and include `break-glass` label.
-3. Add PR template fields: impact, rollback plan, risk, and compensation deadline (e.g. 24h).
-4. Add a workflow to fail PR when incident ID / required fields / label are missing.
-5. Require follow-up PR or issue within 24h to restore normal security gates and add missing tests/docs.
-6. Track follow-up items via a dedicated milestone (e.g. `break-glass-followup`).
+2. Define two emergency paths:
+   - P0 path: allow repo admin bypass first, then require incident/backfill records.
+   - P1 path: use break-glass PR with lightweight format validation.
+3. Require break-glass PRs to reference an incident ID and include `break-glass` label.
+4. Add PR template fields: impact, rollback plan, risk, and compensation deadline (e.g. 24h).
+5. Add workflow validation only for P1 break-glass PR format (do not block P0 admin bypass path).
+6. Require follow-up PR or issue within 24h to restore normal security gates and add missing tests/docs.
+7. Track follow-up items via a dedicated milestone (e.g. `break-glass-followup`).
+8. Explicitly define authorization: only repo admins (or designated on-call maintainers) can bypass ruleset or trigger break-glass.
 
 #### Exit criteria for enabling
 - At least one real incident or near-miss indicates need for emergency override.
 - Team agrees on on-call owner and SLA for follow-up completion.
+
+### Ruleset apply idempotency regression test
+- Status: Deferred
+- Priority: Low
+- Why deferred: `scripts/apply-ruleset.sh` already uses upsert logic (existing ruleset -> PUT, missing -> POST).
+
+#### Goal
+Prevent future regressions where repeated runs would fail due to duplicate ruleset creation.
+
+#### Implementation sketch
+1. Add a small CLI smoke test (dry-run and non-dry-run in a sandbox repo).
+2. Verify first run creates ruleset and second run updates same ruleset ID.
+3. Add this check to maintenance checklist.
 
 ### Enforce PR template completion
 - Status: Deferred
