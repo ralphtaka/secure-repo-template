@@ -22,3 +22,68 @@ Provide a controlled emergency merge path that is auditable and recoverable, eve
 #### Exit criteria for enabling
 - At least one real incident or near-miss indicates need for emergency override.
 - Team agrees on on-call owner and SLA for follow-up completion.
+
+### Enforce PR template completion
+- Status: Deferred
+- Priority: Medium
+- Why deferred: Template is auto-inserted but not gate-enforced yet.
+
+#### Goal
+Fail PR if required security checklist fields are empty or removed.
+
+#### Implementation sketch
+1. Add a PR-body validation workflow.
+2. Require specific headings/checklist tokens from `PULL_REQUEST_TEMPLATE.md`.
+3. Add this validation job to ruleset required checks.
+
+### Automate pinned-action lifecycle
+- Status: Deferred
+- Priority: Medium
+- Why deferred: Current update flow relies on Dependabot PR + manual review.
+
+#### Goal
+Reduce manual effort for commit-SHA upgrades while keeping supply-chain safety.
+
+#### Implementation sketch
+1. Evaluate Renovate or a custom verification script.
+2. Validate SHA/tag mapping and changelog risk automatically.
+3. Auto-label low-risk action bumps for faster review.
+
+### Container image signing (Docker mode)
+- Status: Deferred
+- Priority: Medium
+- Why deferred: Not all client projects publish container images.
+
+#### Goal
+Sign release images and verify provenance (Cosign/Sigstore).
+
+#### Implementation sketch
+1. Add optional signing workflow for tagged releases.
+2. Generate signature and attestations.
+3. Add verification step before deploy/release promotion.
+
+### Expand local pre-commit guardrails
+- Status: Deferred
+- Priority: Low
+- Why deferred: Current mandatory `gitleaks` + secret-file block covers minimum baseline.
+
+#### Goal
+Catch more quality/security issues before CI.
+
+#### Implementation sketch
+1. Add optional file-size guard for large binary commits.
+2. Add optional commit message policy (Conventional Commits).
+3. Add optional lint/format staged checks by stack.
+
+### Security alert notifications (Slack/Teams)
+- Status: Deferred
+- Priority: Low
+- Why deferred: Solo operation can currently monitor in GitHub UI.
+
+#### Goal
+Notify on nightly scan failures/high-severity findings without manual dashboard checks.
+
+#### Implementation sketch
+1. Add webhook notification step for nightly workflows.
+2. Send compact incident payload (repo, run URL, severity, owner).
+3. Throttle duplicate alerts and include recovery notifications.
