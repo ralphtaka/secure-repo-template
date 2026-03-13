@@ -15,6 +15,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] `Settings -> General`: ensure `Template repository` is OFF for client delivery repos.
 
 ### Security
+- [ ] `Settings -> Security`: enable `Dependency graph`.
 - [ ] `Settings -> Security`: enable `Dependabot alerts`.
 - [ ] `Settings -> Security`: enable `Dependabot security updates`.
 - [ ] `Settings -> Security`: enable `Secret scanning` if available on your plan.

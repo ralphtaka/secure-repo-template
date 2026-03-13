@@ -32,6 +32,8 @@ jobs:
 
       - name: Scan image
         uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           image-ref: local/app:${{ github.sha }}
           format: sarif

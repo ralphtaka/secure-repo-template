@@ -22,6 +22,7 @@ A practical GitHub security baseline for freelancers and solo developers.
 
 ### Security features
 Enable:
+- Dependency graph
 - Dependabot alerts
 - Dependabot security updates
 - Secret scanning (if available on your plan)
