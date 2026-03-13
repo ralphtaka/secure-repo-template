@@ -6,8 +6,8 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] Click `Use this template` on GitHub.
 - [ ] Create new repo with private visibility by default.
 - [ ] Clone the new repo locally and confirm default branch is `main`.
-- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on`.
-- [ ] Or run manually: `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on`.
+- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on --solo on`.
+- [ ] Or run manually: `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on --solo on`.
 
 ## B. GitHub settings checklist
 
@@ -27,7 +27,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 ### Branch protection (Rulesets)
 - [ ] `Settings -> Rules -> New ruleset` for `main`.
 - [ ] Use `docs/branch-ruleset-template.md` as baseline.
-- [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off>` (`--strict-required` optional).
+- [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --solo on` (`--strict-required` optional).
 - [ ] (Recommended) include CodeQL high gate: add `--require-code-scanning-high on` when applying ruleset.
 - [ ] Require pull request before merge.
 - [ ] Block force pushes.

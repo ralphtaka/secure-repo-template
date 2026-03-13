@@ -40,10 +40,11 @@ See [`docs/profile-init-guide.md`](docs/profile-init-guide.md) for details.
 ## One-command bootstrap (recommended)
 
 ```bash
-./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on
+./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on --solo on
 ```
 
 This runs profile init, installs local hooks, and applies the main ruleset in one step.
+Use `--solo on` for one-person repos to set required approvals to `0`.
 
 ## Required GitHub settings
 
@@ -67,7 +68,7 @@ Recommended:
 - Require pull request before merge
 - Block force pushes and branch deletion
 - In ruleset, optionally enforce CodeQL security results `high_or_higher` by using:
-- `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on`
+- `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on --solo on`
 
 ## Enable Docker scan when needed
 1. Run `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker on` (or rename `.github/workflows/container-scan.yml.disabled` manually).

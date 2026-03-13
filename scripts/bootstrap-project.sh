@@ -4,17 +4,19 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> [--docker on|off] [--repo owner/name] [--enforcement active|evaluate|disabled] [--require-code-scanning-high on|off] [--apply-ruleset on|off] [--strict-required]
+  ./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> [--docker on|off] [--repo owner/name] [--solo on|off] [--enforcement active|evaluate|disabled] [--require-code-scanning-high on|off] [--apply-ruleset on|off] [--strict-required]
 
 Examples:
   ./scripts/bootstrap-project.sh --stack node --docker off --repo owner/project
   ./scripts/bootstrap-project.sh --stack go --docker on --repo owner/project --require-code-scanning-high on
+  ./scripts/bootstrap-project.sh --stack python --repo owner/project --solo on
 EOF
 }
 
 STACK=""
 DOCKER="off"
 REPO=""
+SOLO="off"
 ENFORCEMENT="active"
 APPLY_RULESET="on"
 STRICT_REQUIRED="false"
@@ -33,6 +35,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --repo)
       REPO="${2:-}"
+      shift 2
+      ;;
+    --solo)
+      SOLO="${2:-}"
       shift 2
       ;;
     --enforcement)
@@ -74,6 +80,11 @@ if [[ "$DOCKER" != "on" && "$DOCKER" != "off" ]]; then
   exit 1
 fi
 
+if [[ "$SOLO" != "on" && "$SOLO" != "off" ]]; then
+  echo "Invalid --solo value: $SOLO (expected on|off)" >&2
+  exit 1
+fi
+
 if [[ "$ENFORCEMENT" != "active" && "$ENFORCEMENT" != "evaluate" && "$ENFORCEMENT" != "disabled" ]]; then
   echo "Invalid --enforcement value: $ENFORCEMENT (expected active|evaluate|disabled)" >&2
   exit 1
@@ -93,7 +104,7 @@ fi
 "$ROOT_DIR/scripts/install-hooks.sh"
 
 if [[ "$APPLY_RULESET" == "on" ]]; then
-  cmd=("$ROOT_DIR/scripts/apply-ruleset.sh" --docker "$DOCKER" --enforcement "$ENFORCEMENT" --require-code-scanning-high "$REQUIRE_CODE_SCANNING_HIGH")
+  cmd=("$ROOT_DIR/scripts/apply-ruleset.sh" --docker "$DOCKER" --solo "$SOLO" --enforcement "$ENFORCEMENT" --require-code-scanning-high "$REQUIRE_CODE_SCANNING_HIGH")
   if [[ -n "$REPO" ]]; then
     cmd+=(--repo "$REPO")
   fi

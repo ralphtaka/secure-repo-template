@@ -12,6 +12,33 @@ Examples:
 EOF
 }
 
+print_gitleaks_hint() {
+  if command -v gitleaks >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo
+  echo "Prerequisite reminder: gitleaks is not installed."
+  echo "Local pre-commit hook requires gitleaks and will block commits until installed."
+
+  os_name="$(uname -s || true)"
+  case "$os_name" in
+    Darwin)
+      if command -v brew >/dev/null 2>&1; then
+        echo "Install command (macOS): brew install gitleaks"
+      else
+        echo "Install command (macOS): install Homebrew first, then run: brew install gitleaks"
+      fi
+      ;;
+    Linux)
+      echo "Install guide (Linux): https://github.com/gitleaks/gitleaks#installing"
+      ;;
+    *)
+      echo "Install guide: https://github.com/gitleaks/gitleaks#installing"
+      ;;
+  esac
+}
+
 STACK=""
 DOCKER="off"
 
@@ -190,3 +217,5 @@ if [[ ${#skipped_smoke_files[@]} -gt 0 ]]; then
     echo "  - $path"
   done
 fi
+
+print_gitleaks_hint

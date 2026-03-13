@@ -24,8 +24,12 @@ if command -v gitleaks >/dev/null 2>&1; then
   elif gitleaks protect --help >/dev/null 2>&1; then
     gitleaks protect --staged --redact --config .gitleaks.toml
   else
-    echo "Warning: gitleaks is installed but staged scan command was not detected; skipping gitleaks pre-commit scan."
+    echo "Blocked: gitleaks is installed but staged scan command was not detected."
+    echo "Upgrade gitleaks to a supported version before committing."
+    exit 1
   fi
 else
-  echo "Warning: gitleaks not found locally; install it for pre-commit secret scanning."
+  echo "Blocked: gitleaks not found locally."
+  echo "Install gitleaks before committing."
+  exit 1
 fi

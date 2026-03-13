@@ -4,7 +4,8 @@ Use this as a default `main` ruleset for client delivery repositories.
 
 ## Suggested rules
 - Require pull request before merge
-- Require at least 1 approval
+- Require at least 1 approval (team repos)
+- For solo repos, set required approvals to `0` (`--solo on`)
 - Dismiss stale approvals when new commits are pushed
 - Block force pushes
 - Block branch deletion
@@ -38,6 +39,12 @@ With CodeQL high severity gate:
 
 ```bash
 ./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on
+```
+
+For solo mode (required approvals = 0):
+
+```bash
+./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --solo on
 ```
 
 Script behavior:

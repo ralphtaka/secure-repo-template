@@ -4,17 +4,19 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/apply-ruleset.sh [--repo owner/name] [--docker on|off] [--enforcement active|evaluate|disabled] [--name ruleset-name] [--require-code-scanning-high on|off] [--strict-required] [--dry-run]
+  ./scripts/apply-ruleset.sh [--repo owner/name] [--docker on|off] [--solo on|off] [--enforcement active|evaluate|disabled] [--name ruleset-name] [--require-code-scanning-high on|off] [--strict-required] [--dry-run]
 
 Examples:
   ./scripts/apply-ruleset.sh --repo owner/project --docker off
   ./scripts/apply-ruleset.sh --repo owner/project --docker on --require-code-scanning-high on
+  ./scripts/apply-ruleset.sh --repo owner/project --solo on
 EOF
 }
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO=""
 DOCKER="off"
+SOLO="off"
 ENFORCEMENT="active"
 RULESET_NAME="main-security-baseline"
 DRY_RUN="false"
@@ -44,6 +46,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --docker)
       DOCKER="${2:-}"
+      shift 2
+      ;;
+    --solo)
+      SOLO="${2:-}"
       shift 2
       ;;
     --enforcement)
@@ -80,6 +86,11 @@ done
 
 if [[ "$DOCKER" != "on" && "$DOCKER" != "off" ]]; then
   echo "Invalid --docker value: $DOCKER (expected on|off)" >&2
+  exit 1
+fi
+
+if [[ "$SOLO" != "on" && "$SOLO" != "off" ]]; then
+  echo "Invalid --solo value: $SOLO (expected on|off)" >&2
   exit 1
 fi
 
@@ -136,6 +147,11 @@ if [[ ${#checks[@]} -eq 0 ]]; then
   exit 1
 fi
 
+required_approving_review_count=1
+if [[ "$SOLO" == "on" ]]; then
+  required_approving_review_count=0
+fi
+
 code_scanning_rule=""
 if [[ "$REQUIRE_CODE_SCANNING_HIGH" == "on" ]]; then
   code_scanning_rule='
@@ -185,7 +201,7 @@ cat > "$payload_file" <<EOF
         "dismiss_stale_reviews_on_push": true,
         "require_code_owner_review": false,
         "require_last_push_approval": false,
-        "required_approving_review_count": 1,
+        "required_approving_review_count": $required_approving_review_count,
         "required_review_thread_resolution": true
       }
     },
@@ -205,6 +221,7 @@ EOF
 if [[ "$DRY_RUN" == "true" ]]; then
   echo "Repo: $REPO"
   echo "Docker checks enabled: $DOCKER"
+  echo "Solo mode: $SOLO"
   echo "Ruleset name: $RULESET_NAME"
   echo "Strict required mode: $STRICT_REQUIRED"
   echo "Code scanning high gate: $REQUIRE_CODE_SCANNING_HIGH"
@@ -241,6 +258,7 @@ for check in "${checks[@]}"; do
   echo "- $check"
 done
 echo "Code scanning high gate: $REQUIRE_CODE_SCANNING_HIGH"
+echo "Solo mode: $SOLO (required approvals: $required_approving_review_count)"
 
 if [[ ${#skipped_checks[@]} -gt 0 ]]; then
   echo "Skipped checks:"
