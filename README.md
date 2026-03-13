@@ -2,6 +2,37 @@
 
 A practical GitHub security baseline for freelancers and solo developers.
 
+## TL;DR (Private Client Repo / Fastest Usable)
+Use this path as default for solo freelance repos on GitHub Free private repositories.
+
+1. Install local prerequisite:
+
+```bash
+brew install gitleaks
+```
+
+2. Bootstrap without ruleset lock first:
+
+```bash
+./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --solo on --require-code-scanning-high off --apply-ruleset off
+```
+
+3. Open one smoke PR (for example README change) and check which workflows are actually supported on your plan.
+4. If `codeql` is unsupported in private repo, disable it before applying ruleset:
+
+```bash
+mv .github/workflows/codeql.yml .github/workflows/codeql.yml.disabled
+git add .github/workflows/codeql.yml.disabled
+git commit -m "chore: disable codeql for current plan"
+git push
+```
+
+5. Apply ruleset only after smoke PR result is clear:
+
+```bash
+./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --solo on --require-code-scanning-high off
+```
+
 ## Included
 
 ### Baseline controls (enabled by default)
@@ -37,7 +68,7 @@ It also copies a minimal smoke scaffold for the selected stack when target files
 Template default `.github/dependabot.yml` only tracks GitHub Actions to avoid noise before profile init.
 See [`docs/profile-init-guide.md`](docs/profile-init-guide.md) for details.
 
-## One-command bootstrap (recommended)
+## One-command bootstrap (when Code Scanning is available)
 
 ```bash
 ./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on --solo on
