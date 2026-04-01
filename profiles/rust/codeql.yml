@@ -21,14 +21,60 @@ jobs:
     name: codeql
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve CodeQL mode
+        id: mode
+        run: |
+          mode="${{ vars.CODEQL_MODE }}"
+          if [ -z "$mode" ]; then
+            mode="auto"
+          fi
+
+          private_repo="${{ github.event.repository.private }}"
+          owner_type="${{ github.event.repository.owner.type }}"
+          run_scan="true"
+          reason="enabled"
+
+          case "$mode" in
+            off)
+              run_scan="false"
+              reason="disabled by CODEQL_MODE=off"
+              ;;
+            auto)
+              if [ "$private_repo" = "true" ] && [ "$owner_type" = "User" ]; then
+                run_scan="false"
+                reason="auto-skip for private personal repository"
+              fi
+              ;;
+            enforce)
+              ;;
+            *)
+              echo "Invalid CODEQL_MODE='$mode' (expected auto|off|enforce)." >&2
+              exit 1
+              ;;
+          esac
+
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "run_scan=$run_scan" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
+        if: steps.mode.outputs.run_scan == 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Init CodeQL
+        if: steps.mode.outputs.run_scan == 'true'
         uses: github/codeql-action/init@0d579ffd059c29b07949a3cce3983f0780820c98
         with:
           languages: rust
           build-mode: none
 
       - name: Analyze
+        if: steps.mode.outputs.run_scan == 'true'
         uses: github/codeql-action/analyze@0d579ffd059c29b07949a3cce3983f0780820c98
+
+      - name: CodeQL skipped
+        if: steps.mode.outputs.run_scan != 'true'
+        run: |
+          echo "CodeQL scan skipped."
+          echo "mode=${{ steps.mode.outputs.mode }}"
+          echo "reason=${{ steps.mode.outputs.reason }}"

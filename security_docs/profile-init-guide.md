@@ -38,6 +38,9 @@ Examples:
 - Dockerfile lint workflow is toggled by mode:
 - `--docker on` enables `.github/workflows/dockerfile-lint.yml`
 - `--docker off` keeps `.github/workflows/dockerfile-lint.yml.disabled`
+- CodeQL and dependency-review behavior can be tuned by repository variables:
+- `CODEQL_MODE`: `auto | off | enforce`
+- `DEPENDENCY_REVIEW_MODE`: `auto | off | enforce`
 
 ## Expected next steps
 1. Review the generated diff.

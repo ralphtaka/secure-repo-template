@@ -15,15 +15,60 @@ jobs:
     name: dependency-review
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve dependency-review mode
+        id: mode
+        run: |
+          mode="${{ vars.DEPENDENCY_REVIEW_MODE }}"
+          if [ -z "$mode" ]; then
+            mode="auto"
+          fi
+
+          private_repo="${{ github.event.repository.private }}"
+          owner_type="${{ github.event.repository.owner.type }}"
+          run_review="true"
+          reason="enabled"
+
+          case "$mode" in
+            off)
+              run_review="false"
+              reason="disabled by DEPENDENCY_REVIEW_MODE=off"
+              ;;
+            auto)
+              if [ "$private_repo" = "true" ] && [ "$owner_type" = "User" ]; then
+                run_review="false"
+                reason="auto-skip for private personal repository"
+              fi
+              ;;
+            enforce)
+              ;;
+            *)
+              echo "Invalid DEPENDENCY_REVIEW_MODE='$mode' (expected auto|off|enforce)." >&2
+              exit 1
+              ;;
+          esac
+
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "run_review=$run_review" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
+        if: steps.mode.outputs.run_review == 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Dependency Review
+        if: steps.mode.outputs.run_review == 'true'
         uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48
         with:
           config-file: .github/dependency-review-config.yml
           fail-on-severity: high
           comment-summary-in-pr: always
+
+      - name: Dependency Review skipped
+        if: steps.mode.outputs.run_review != 'true'
+        run: |
+          echo "Dependency Review skipped."
+          echo "mode=${{ steps.mode.outputs.mode }}"
+          echo "reason=${{ steps.mode.outputs.reason }}"
 
   trivy-pr:
     name: trivy-pr

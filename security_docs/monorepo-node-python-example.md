@@ -281,4 +281,6 @@ Expected:
 
 - `dependency-audit-nightly.yml` now discovers manifests recursively and audits per subdirectory.
 - Detection excludes template-internal paths like `profiles/` and `.claude/`.
+- In private personal repositories, `dependency-review` and `codeql` default to auto-skip mode.
+- Override with repository variables: `DEPENDENCY_REVIEW_MODE` and `CODEQL_MODE` (`auto|off|enforce`).
 - Keep dependency files in predictable app/service folders to avoid scanning temporary or sample projects.
