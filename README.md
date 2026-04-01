@@ -18,16 +18,16 @@ brew install gitleaks
 ```
 
 3. Open one smoke PR (for example README change) and check which workflows are actually supported on your plan.
-4. If `codeql` is unsupported in private repo, disable it before applying ruleset:
+4. For private personal repositories, `dependency-review` and `codeql` now default to auto-skip mode (check stays green, scan is skipped).
+5. Optional: set repository variables to control behavior explicitly:
 
 ```bash
-mv .github/workflows/codeql.yml .github/workflows/codeql.yml.disabled
-git add .github/workflows/codeql.yml.disabled
-git commit -m "chore: disable codeql for current plan"
-git push
+# Repository Settings -> Secrets and variables -> Actions -> Variables
+# DEPENDENCY_REVIEW_MODE: auto | off | enforce
+# CODEQL_MODE: auto | off | enforce
 ```
 
-5. Apply ruleset only after smoke PR result is clear:
+6. Apply ruleset only after smoke PR result is clear:
 
 ```bash
 ./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --solo on --require-code-scanning-high off
@@ -37,14 +37,14 @@ git push
 
 ### Baseline controls (enabled by default)
 - Dependabot: automatic dependency update PRs
-- Dependency Review: blocks PRs that introduce vulnerable runtime dependencies
+- Dependency Review: blocks PRs that introduce vulnerable runtime dependencies when enabled/supported
 - Dependency license policy: allowlist-based license compliance checks in dependency review
 - Trivy PR scan: scans vulnerabilities and misconfigurations
 - Gitleaks: secret scanning on pull requests and pushes to `main`
 - Nightly Trivy SARIF upload: post-merge continuous scanning in GitHub code scanning
 - Nightly dependency audit: stack-aware dependency vulnerability checks for Node/Python/Java/Go/Rust
 - SBOM generation: software bill of materials after pushes to `main`
-- CodeQL: language SAST workflow is applied by profile init
+- CodeQL: language SAST workflow is applied by profile init (auto-skip in private personal repos by default)
 - CI tests: language-specific test workflow is applied by profile init
 - Dependabot auto-merge: patch-level GitHub Actions updates can auto-merge after checks pass
 - SECURITY.md: vulnerability disclosure policy
