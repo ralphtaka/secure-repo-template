@@ -68,6 +68,12 @@ It also copies a minimal smoke scaffold for the selected stack when target files
 Template default `.github/dependabot.yml` only tracks GitHub Actions to avoid noise before profile init.
 See [`security_docs/profile-init-guide.md`](security_docs/profile-init-guide.md) for details.
 
+For Node + Python monorepo setup, use:
+
+```bash
+./scripts/init-monorepo-node-python.sh --node-dir apps/web --python-dir services/api --docker <on|off>
+```
+
 ## One-command bootstrap (when Code Scanning is available)
 
 ```bash
@@ -111,6 +117,7 @@ Recommended:
 - Use [`security_docs/client-project-kickoff-checklist.md`](security_docs/client-project-kickoff-checklist.md) for client repo setup, GitHub security toggles, and Day 1 verification commands.
 - Ruleset baseline is documented in [`security_docs/branch-ruleset-template.md`](security_docs/branch-ruleset-template.md).
 - Workflow diagram is documented in [`security_docs/security-workflow-overview.md`](security_docs/security-workflow-overview.md).
+- Node + Python monorepo assembly example: [`security_docs/monorepo-node-python-example.md`](security_docs/monorepo-node-python-example.md).
 
 ## Local guardrails
 - Install local hooks: `./scripts/install-hooks.sh`
@@ -131,6 +138,7 @@ Recommended:
 - security_docs/branch-ruleset-template.md
 - security_docs/local-guardrails.md
 - security_docs/security-workflow-overview.md
+- security_docs/monorepo-node-python-example.md
 - security_docs/todo.md
 - security_docs/vulnerability-sla.md
 - .github/dependabot.yml
@@ -185,6 +193,7 @@ Recommended:
 - profiles/rust/smoke/src/lib.rs
 - profiles/rust/gitignore.snippet
 - scripts/init-project.sh
+- scripts/init-monorepo-node-python.sh
 - scripts/bootstrap-project.sh
 - scripts/install-hooks.sh
 - scripts/apply-ruleset.sh
