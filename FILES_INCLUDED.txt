@@ -11,6 +11,7 @@ This template includes:
 - security_docs/branch-ruleset-template.md
 - security_docs/local-guardrails.md
 - security_docs/security-workflow-overview.md
+- security_docs/monorepo-node-python-example.md
 - security_docs/todo.md
 - security_docs/vulnerability-sla.md
 - .github/dependabot.yml
@@ -65,6 +66,7 @@ This template includes:
 - profiles/rust/smoke/src/lib.rs
 - profiles/rust/gitignore.snippet
 - scripts/init-project.sh
+- scripts/init-monorepo-node-python.sh
 - scripts/bootstrap-project.sh
 - scripts/install-hooks.sh
 - scripts/apply-ruleset.sh

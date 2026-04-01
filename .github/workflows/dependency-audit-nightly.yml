@@ -22,25 +22,66 @@ jobs:
       - name: Detect dependency manifests
         id: detect
         run: |
+          node_dirs="$(
+            find . -type f -name package.json -not -path '*/node_modules/*' -not -path './profiles/*' -not -path './.claude/*' -print \
+              | sed 's#^\./##' \
+              | while IFS= read -r file; do dirname "$file"; done \
+              | sort -u
+          )"
+
+          python_requirements_files="$(
+            find . -type f -name 'requirements*.txt' -not -path '*/.venv/*' -not -path '*/venv/*' -not -path './profiles/*' -not -path './.claude/*' -print \
+              | sed 's#^\./##' \
+              | sort -u
+          )"
+
+          python_pyproject_dirs="$(
+            find . -type f -name pyproject.toml -not -path '*/.venv/*' -not -path '*/venv/*' -not -path './profiles/*' -not -path './.claude/*' -print \
+              | sed 's#^\./##' \
+              | while IFS= read -r file; do dirname "$file"; done \
+              | sort -u
+          )"
+
+          java_dirs="$(
+            find . -type f -name pom.xml -not -path '*/target/*' -not -path './profiles/*' -not -path './.claude/*' -print \
+              | sed 's#^\./##' \
+              | while IFS= read -r file; do dirname "$file"; done \
+              | sort -u
+          )"
+
+          go_dirs="$(
+            find . -type f -name go.mod -not -path '*/vendor/*' -not -path './profiles/*' -not -path './.claude/*' -print \
+              | sed 's#^\./##' \
+              | while IFS= read -r file; do dirname "$file"; done \
+              | sort -u
+          )"
+
+          rust_dirs="$(
+            find . -type f -name Cargo.toml -not -path '*/target/*' -not -path './profiles/*' -not -path './.claude/*' -print \
+              | sed 's#^\./##' \
+              | while IFS= read -r file; do dirname "$file"; done \
+              | sort -u
+          )"
+
           node=false
           python=false
           java=false
           go=false
           rust=false
 
-          if [ -f package.json ]; then
+          if [ -n "$node_dirs" ]; then
             node=true
           fi
-          if [ -f requirements.txt ] || [ -f pyproject.toml ]; then
+          if [ -n "$python_requirements_files" ] || [ -n "$python_pyproject_dirs" ]; then
             python=true
           fi
-          if [ -f pom.xml ]; then
+          if [ -n "$java_dirs" ]; then
             java=true
           fi
-          if [ -f go.mod ]; then
+          if [ -n "$go_dirs" ]; then
             go=true
           fi
-          if [ -f Cargo.toml ]; then
+          if [ -n "$rust_dirs" ]; then
             rust=true
           fi
 
@@ -49,6 +90,30 @@ jobs:
           echo "java=$java" >> "$GITHUB_OUTPUT"
           echo "go=$go" >> "$GITHUB_OUTPUT"
           echo "rust=$rust" >> "$GITHUB_OUTPUT"
+
+          echo "node_dirs<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$node_dirs" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          echo "python_requirements_files<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$python_requirements_files" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          echo "python_pyproject_dirs<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$python_pyproject_dirs" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          echo "java_dirs<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$java_dirs" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          echo "go_dirs<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$go_dirs" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          echo "rust_dirs<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$rust_dirs" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         if: steps.detect.outputs.node == 'true'
@@ -59,12 +124,19 @@ jobs:
       - name: Run npm audit
         if: steps.detect.outputs.node == 'true'
         run: |
-          if [ -f package-lock.json ]; then
-            npm audit --audit-level=high
-          else
-            npm install --package-lock-only --ignore-scripts
-            npm audit --audit-level=high
-          fi
+          while IFS= read -r node_dir; do
+            [ -z "$node_dir" ] && continue
+            echo "::group::npm audit ($node_dir)"
+            pushd "$node_dir" >/dev/null
+            if [ -f package-lock.json ]; then
+              npm audit --audit-level=high
+            else
+              npm install --package-lock-only --ignore-scripts
+              npm audit --audit-level=high
+            fi
+            popd >/dev/null
+            echo "::endgroup::"
+          done <<< "${{ steps.detect.outputs.node_dirs }}"
 
       - name: Setup Python
         if: steps.detect.outputs.python == 'true'
@@ -77,12 +149,30 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pip-audit
-          if [ -f requirements.txt ]; then
-            pip-audit -r requirements.txt
-          elif [ -f pyproject.toml ]; then
+
+          while IFS= read -r requirements_file; do
+            [ -z "$requirements_file" ] && continue
+            requirements_dir="$(dirname "$requirements_file")"
+            requirements_base="$(basename "$requirements_file")"
+            echo "::group::pip-audit requirements ($requirements_file)"
+            pushd "$requirements_dir" >/dev/null
+            pip-audit -r "$requirements_base"
+            popd >/dev/null
+            echo "::endgroup::"
+          done <<< "${{ steps.detect.outputs.python_requirements_files }}"
+
+          while IFS= read -r pyproject_dir; do
+            [ -z "$pyproject_dir" ] && continue
+            if compgen -G "$pyproject_dir/requirements*.txt" >/dev/null; then
+              continue
+            fi
+            echo "::group::pip-audit pyproject ($pyproject_dir)"
+            pushd "$pyproject_dir" >/dev/null
             python -m pip install .
             pip-audit
-          fi
+            popd >/dev/null
+            echo "::endgroup::"
+          done <<< "${{ steps.detect.outputs.python_pyproject_dirs }}"
 
       - name: Setup Java
         if: steps.detect.outputs.java == 'true'
@@ -97,17 +187,23 @@ jobs:
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
-          MVN="mvn"
-          if [ -x ./mvnw ]; then
-            MVN="./mvnw"
-          fi
-
           EXTRA_ARGS=()
           if [ -n "${NVD_API_KEY:-}" ]; then
             EXTRA_ARGS+=("-Dnvd.api.key=$NVD_API_KEY")
           fi
 
-          "$MVN" -B -DskipTests org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 "${EXTRA_ARGS[@]}"
+          while IFS= read -r java_dir; do
+            [ -z "$java_dir" ] && continue
+            echo "::group::maven dependency-check ($java_dir)"
+            pushd "$java_dir" >/dev/null
+            MVN="mvn"
+            if [ -x ./mvnw ]; then
+              MVN="./mvnw"
+            fi
+            "$MVN" -B -DskipTests org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7 "${EXTRA_ARGS[@]}"
+            popd >/dev/null
+            echo "::endgroup::"
+          done <<< "${{ steps.detect.outputs.java_dirs }}"
 
       - name: Run govulncheck
         if: steps.detect.outputs.go == 'true'
@@ -120,7 +216,15 @@ jobs:
             go install golang.org/x/vuln/cmd/govulncheck@latest
             echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
           fi
-          govulncheck ./...
+
+          while IFS= read -r go_dir; do
+            [ -z "$go_dir" ] && continue
+            echo "::group::govulncheck ($go_dir)"
+            pushd "$go_dir" >/dev/null
+            govulncheck ./...
+            popd >/dev/null
+            echo "::endgroup::"
+          done <<< "${{ steps.detect.outputs.go_dirs }}"
 
       - name: Run cargo audit
         if: steps.detect.outputs.rust == 'true'
@@ -132,7 +236,15 @@ jobs:
           if ! command -v cargo-audit >/dev/null 2>&1; then
             cargo install cargo-audit --locked
           fi
-          cargo audit
+
+          while IFS= read -r rust_dir; do
+            [ -z "$rust_dir" ] && continue
+            echo "::group::cargo audit ($rust_dir)"
+            pushd "$rust_dir" >/dev/null
+            cargo audit
+            popd >/dev/null
+            echo "::endgroup::"
+          done <<< "${{ steps.detect.outputs.rust_dirs }}"
 
       - name: No supported manifests detected
         if: steps.detect.outputs.node != 'true' && steps.detect.outputs.python != 'true' && steps.detect.outputs.java != 'true' && steps.detect.outputs.go != 'true' && steps.detect.outputs.rust != 'true'
