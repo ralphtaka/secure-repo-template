@@ -26,7 +26,7 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 
 ### Branch protection (Rulesets)
 - [ ] `Settings -> Rules -> New ruleset` for `main`.
-- [ ] Use `docs/branch-ruleset-template.md` as baseline.
+- [ ] Use `security_docs/branch-ruleset-template.md` as baseline.
 - [ ] Or apply by script: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --solo on` (`--strict-required` optional).
 - [ ] (Recommended) include CodeQL high gate: add `--require-code-scanning-high on` when applying ruleset.
 - [ ] Require pull request before merge.

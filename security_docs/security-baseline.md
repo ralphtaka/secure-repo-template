@@ -33,7 +33,7 @@ This package is best for:
 ## Setup flow
 1. `./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on`
 2. Open one smoke PR and confirm checks.
-3. Review workflow map: `docs/security-workflow-overview.md`.
+3. Review workflow map: `security_docs/security-workflow-overview.md`.
 
 ## License policy note
 - Review `.github/dependency-review-config.yml` allowlist for each client contract.

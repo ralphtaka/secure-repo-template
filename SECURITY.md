@@ -20,4 +20,4 @@ Contact:
 
 ## Remediation SLA
 
-Use the baseline in `docs/vulnerability-sla.md` for client projects unless contract terms override it.
+Use the baseline in `security_docs/vulnerability-sla.md` for client projects unless contract terms override it.

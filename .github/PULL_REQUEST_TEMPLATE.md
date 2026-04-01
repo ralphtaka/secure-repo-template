@@ -8,7 +8,7 @@
 - [ ] I reviewed secret handling (no hardcoded keys/tokens/certs).
 - [ ] I reviewed dependency changes and risk (`dependency-review` / advisories).
 - [ ] I reviewed logging for sensitive data leakage.
-- [ ] I updated docs/runbook/checklist when security behavior changed.
+- [ ] I updated security_docs/runbook/checklist when security behavior changed.
 
 ## Testing
 - [ ] Local tests pass.

@@ -66,7 +66,7 @@ Apply one stack profile per new client repo:
 This command selects language-specific Dependabot config, applies a managed `.gitignore` profile block, and toggles Docker scanning mode.
 It also copies a minimal smoke scaffold for the selected stack when target files do not already exist.
 Template default `.github/dependabot.yml` only tracks GitHub Actions to avoid noise before profile init.
-See [`docs/profile-init-guide.md`](docs/profile-init-guide.md) for details.
+See [`security_docs/profile-init-guide.md`](security_docs/profile-init-guide.md) for details.
 
 ## One-command bootstrap (when Code Scanning is available)
 
@@ -108,14 +108,14 @@ Recommended:
 4. If needed, track accepted risks in `.trivyignore` with ticket/justification.
 
 ## Project kickoff checklist
-- Use [`docs/client-project-kickoff-checklist.md`](docs/client-project-kickoff-checklist.md) for client repo setup, GitHub security toggles, and Day 1 verification commands.
-- Ruleset baseline is documented in [`docs/branch-ruleset-template.md`](docs/branch-ruleset-template.md).
-- Workflow diagram is documented in [`docs/security-workflow-overview.md`](docs/security-workflow-overview.md).
+- Use [`security_docs/client-project-kickoff-checklist.md`](security_docs/client-project-kickoff-checklist.md) for client repo setup, GitHub security toggles, and Day 1 verification commands.
+- Ruleset baseline is documented in [`security_docs/branch-ruleset-template.md`](security_docs/branch-ruleset-template.md).
+- Workflow diagram is documented in [`security_docs/security-workflow-overview.md`](security_docs/security-workflow-overview.md).
 
 ## Local guardrails
 - Install local hooks: `./scripts/install-hooks.sh`
 - Apply ruleset by CLI: `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on` (`--strict-required` optional)
-- Vulnerability SLA baseline: [`docs/vulnerability-sla.md`](docs/vulnerability-sla.md)
+- Vulnerability SLA baseline: [`security_docs/vulnerability-sla.md`](security_docs/vulnerability-sla.md)
 
 ## Files included
 
@@ -124,15 +124,15 @@ Recommended:
 - .gitignore
 - .trivyignore
 - .gitleaks.toml
-- docs/security-baseline.md
-- docs/docker-security-addon.md
-- docs/client-project-kickoff-checklist.md
-- docs/profile-init-guide.md
-- docs/branch-ruleset-template.md
-- docs/local-guardrails.md
-- docs/security-workflow-overview.md
-- docs/todo.md
-- docs/vulnerability-sla.md
+- security_docs/security-baseline.md
+- security_docs/docker-security-addon.md
+- security_docs/client-project-kickoff-checklist.md
+- security_docs/profile-init-guide.md
+- security_docs/branch-ruleset-template.md
+- security_docs/local-guardrails.md
+- security_docs/security-workflow-overview.md
+- security_docs/todo.md
+- security_docs/vulnerability-sla.md
 - .github/dependabot.yml
 - .github/dependency-review-config.yml
 - .github/PULL_REQUEST_TEMPLATE.md

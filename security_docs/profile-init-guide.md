@@ -43,4 +43,4 @@ Examples:
 1. Review the generated diff.
 2. Commit and push.
 3. Open a smoke PR and verify required checks.
-4. Complete GitHub settings from `docs/client-project-kickoff-checklist.md`.
+4. Complete GitHub settings from `security_docs/client-project-kickoff-checklist.md`.

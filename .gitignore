@@ -30,3 +30,6 @@ reports/
 
 # Misc
 *.log
+
+# Claude code worktrees
+.claude/worktrees
