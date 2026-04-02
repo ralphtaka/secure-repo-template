@@ -92,6 +92,10 @@ fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+echo "Notice: scripts/init-monorepo-node-python.sh is legacy."
+echo "Prefer: ./scripts/init-project.sh --stack auto --docker $DOCKER"
+echo
+
 if [[ ! -d "$ROOT_DIR/$NODE_DIR" ]]; then
   echo "Node directory not found: $NODE_DIR" >&2
   exit 1
@@ -277,6 +281,9 @@ jobs:
     name: codeql
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
       - name: Resolve CodeQL mode
         id: mode
         run: |
@@ -285,55 +292,33 @@ jobs:
             mode="auto"
           fi
 
-          private_repo="${{ github.event.repository.private }}"
-          owner_type="${{ github.event.repository.owner.type }}"
-          run_scan="true"
-          reason="enabled"
-
-          case "$mode" in
-            off)
-              run_scan="false"
-              reason="disabled by CODEQL_MODE=off"
-              ;;
-            auto)
-              if [ "$private_repo" = "true" ] && [ "$owner_type" = "User" ]; then
-                run_scan="false"
-                reason="auto-skip for private personal repository"
-              fi
-              ;;
-            enforce)
-              ;;
-            *)
-              echo "Invalid CODEQL_MODE='$mode' (expected auto|off|enforce)." >&2
-              exit 1
-              ;;
-          esac
-
-          echo "mode=$mode" >> "$GITHUB_OUTPUT"
-          echo "run_scan=$run_scan" >> "$GITHUB_OUTPUT"
-          echo "reason=$reason" >> "$GITHUB_OUTPUT"
-
-      - name: Checkout
-        if: steps.mode.outputs.run_scan == 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+          ./scripts/resolve-security-feature-mode.sh \
+            --feature codeql \
+            --mode "$mode" \
+            --repo "${{ github.repository }}" \
+            --private-repo "${{ github.event.repository.private }}" \
+            --owner-type "${{ github.event.repository.owner.type }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
 
       - name: Init CodeQL
-        if: steps.mode.outputs.run_scan == 'true'
+        if: steps.mode.outputs.run_feature == 'true'
         uses: github/codeql-action/init@0d579ffd059c29b07949a3cce3983f0780820c98
         with:
           languages: javascript-typescript, python
           build-mode: none
 
       - name: Analyze
-        if: steps.mode.outputs.run_scan == 'true'
+        if: steps.mode.outputs.run_feature == 'true'
         uses: github/codeql-action/analyze@0d579ffd059c29b07949a3cce3983f0780820c98
 
       - name: CodeQL skipped
-        if: steps.mode.outputs.run_scan != 'true'
+        if: steps.mode.outputs.run_feature != 'true'
         run: |
           echo "CodeQL scan skipped."
           echo "mode=${{ steps.mode.outputs.mode }}"
           echo "reason=${{ steps.mode.outputs.reason }}"
+          echo "capability_status=${{ steps.mode.outputs.capability_status }}"
+          echo "capability_detail=${{ steps.mode.outputs.capability_detail }}"
 EOF
 
 PROFILE_MARKER_START="# >>> stack-profile:start >>>"

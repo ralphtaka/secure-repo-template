@@ -79,6 +79,51 @@ Sign release images and verify provenance (Cosign/Sigstore).
 2. Generate signature and attestations.
 3. Add verification step before deploy/release promotion.
 
+### Release and deployment workflow baseline
+- Status: Deferred
+- Priority: High
+- Added: 2026-04-02
+- Why deferred: Current template focuses on code security baseline and does not yet define promotion/release controls.
+
+#### Goal
+Provide a production-ready release path with auditable promotion, approval gates, and rollback procedure.
+
+#### Implementation sketch
+1. Add staged release flow (`build -> staging -> production`) with explicit environment separation.
+2. Require GitHub Environment protection rules for production (manual approval + restricted deploy actors).
+3. Add deploy rollback playbook and a one-command rollback action for last known good release.
+4. Gate production promotion on required CI/security checks and successful staging verification.
+
+### Artifact signing and provenance verification
+- Status: Deferred
+- Priority: High
+- Added: 2026-04-02
+- Why deferred: SBOM exists, but signed artifacts and provenance checks are not yet enforced end-to-end.
+
+#### Goal
+Ensure release artifacts are signed and verifiable before deployment, with provenance evidence for audit/compliance.
+
+#### Implementation sketch
+1. Sign release artifacts/images on tag/release workflows (for example Cosign/Sigstore).
+2. Generate provenance/attestation metadata and store alongside release artifacts.
+3. Verify signature and provenance in promotion/deploy workflow before production rollout.
+4. Document verification commands for incident response and customer audit requests.
+
+### IaC and platform policy gates
+- Status: Deferred
+- Priority: Medium
+- Added: 2026-04-02
+- Why deferred: Current baseline does not include Terraform/Kubernetes/Helm policy checks.
+
+#### Goal
+Prevent insecure infrastructure/platform changes at PR time using policy-as-code controls.
+
+#### Implementation sketch
+1. Add optional IaC checks for Terraform and container platform manifests (Kubernetes/Helm if present).
+2. Add policy validation step (for example OPA/Conftest or equivalent) with baseline deny rules.
+3. Make IaC policy check a required status check when IaC directories are detected.
+4. Provide path-based skip/override config for repos without infrastructure code.
+
 ### Expand local pre-commit guardrails
 - Status: Deferred
 - Priority: Low

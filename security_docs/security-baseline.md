@@ -31,7 +31,7 @@ This package is best for:
 - internal tools that ship with Docker
 
 ## Setup flow
-1. `./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on`
+1. `./scripts/bootstrap-project.sh --stack <auto|node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on`
 2. Open one smoke PR and confirm checks.
 3. Review workflow map: `security_docs/security-workflow-overview.md`.
 
@@ -39,4 +39,4 @@ This package is best for:
 - Review `.github/dependency-review-config.yml` allowlist for each client contract.
 - If a client needs stricter/legal-specific policy, adjust allowlist before project kickoff.
 - In private personal repositories, `dependency-review` and `codeql` run in auto-skip mode by default.
-- Use repository variables `DEPENDENCY_REVIEW_MODE` and `CODEQL_MODE` (`auto|off|enforce`) to override behavior.
+- Use repository variables `DEPENDENCY_REVIEW_MODE`, `CODEQL_MODE`, and `SARIF_UPLOAD_MODE` (`auto|off|enforce`) to override behavior.

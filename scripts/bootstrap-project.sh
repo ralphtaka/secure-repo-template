@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> [--docker on|off] [--repo owner/name] [--solo on|off] [--enforcement active|evaluate|disabled] [--require-code-scanning-high on|off] [--apply-ruleset on|off] [--strict-required]
+  ./scripts/bootstrap-project.sh --stack <node|python|java|go|rust|auto> [--docker on|off] [--repo owner/name] [--solo on|off] [--enforcement active|evaluate|disabled] [--require-code-scanning-high on|off] [--apply-ruleset on|off] [--strict-required]
 
 Examples:
   ./scripts/bootstrap-project.sh --stack node --docker off --repo owner/project

@@ -1,0 +1,80 @@
+name: config-sync
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: config-sync-main
+  cancel-in-progress: false
+
+jobs:
+  config-sync:
+    name: config-sync
+    if: ${{ !contains(github.event.head_commit.message, '[config-sync]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+
+      - name: Detect manifest changes
+        id: detect
+        run: |
+          base_sha="${{ github.event.before }}"
+          head_sha="${{ github.sha }}"
+          ./scripts/has-manifest-changes.sh --base "$base_sha" --head "$head_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Show matched files
+        if: steps.detect.outputs.has_changes == 'true'
+        run: |
+          echo "Manifest-related changes detected:"
+          printf '%s\n' "${{ steps.detect.outputs.matched_files }}"
+
+      - name: Resolve docker mode
+        if: steps.detect.outputs.has_changes == 'true'
+        id: docker
+        run: |
+          docker_mode="off"
+          if [ -f .stack-profile ]; then
+            profile_docker="$(awk -F= '$1=="docker" {print $2}' .stack-profile | tail -n1)"
+            if [ "$profile_docker" = "on" ] || [ "$profile_docker" = "off" ]; then
+              docker_mode="$profile_docker"
+            fi
+          fi
+          if [ "$docker_mode" = "off" ] && [ -f .github/workflows/container-scan.yml ]; then
+            docker_mode="on"
+          fi
+          echo "docker_mode=$docker_mode" >> "$GITHUB_OUTPUT"
+
+      - name: Regenerate configs
+        if: steps.detect.outputs.has_changes == 'true'
+        run: |
+          ./scripts/init-project.sh --stack auto --docker "${{ steps.docker.outputs.docker_mode }}"
+
+      - name: Validate regenerated configs
+        if: steps.detect.outputs.has_changes == 'true'
+        run: |
+          ./scripts/validate-generated-configs.sh --root .
+
+      - name: Commit config sync changes
+        if: steps.detect.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A .github/dependabot.yml .github/workflows/ci.yml .github/workflows/codeql.yml .gitignore .stack-profile
+          git add -A .github/workflows/container-scan.yml .github/workflows/container-scan.yml.disabled .github/workflows/dockerfile-lint.yml .github/workflows/dockerfile-lint.yml.disabled || true
+
+          if git diff --cached --quiet; then
+            echo "No config changes to commit."
+            exit 0
+          fi
+
+          git commit -m "[config-sync] regenerate security config from manifest changes"
+          git push

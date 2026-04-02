@@ -18,10 +18,15 @@ Always require:
 - `gitleaks`
 - `codeql`
 - `ci`
+- `template-smoke`
 
 If Docker is enabled, also require:
 - `container-scan`
 - `dockerfile-lint`
+
+For direct-to-main repositories:
+- `config-sync` is a push-to-main maintenance workflow, not a PR required check.
+- Monitor `config-sync` run status on `main` pushes to confirm auto-regeneration succeeded.
 
 ## Where to configure
 `Settings -> Rules -> New ruleset -> Branch ruleset`

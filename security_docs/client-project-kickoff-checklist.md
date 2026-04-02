@@ -6,8 +6,8 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] Click `Use this template` on GitHub.
 - [ ] Create new repo with private visibility by default.
 - [ ] Clone the new repo locally and confirm default branch is `main`.
-- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on --solo on`.
-- [ ] Or run manually: `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on --solo on`.
+- [ ] Run bootstrap (recommended): `./scripts/bootstrap-project.sh --stack <auto|node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on --solo on`.
+- [ ] Or run manually: `./scripts/init-project.sh --stack auto --docker <on|off>` then `./scripts/install-hooks.sh` then `./scripts/apply-ruleset.sh --repo <owner/repo> --docker <on|off> --require-code-scanning-high on --solo on`.
 
 ## B. GitHub settings checklist
 
@@ -38,10 +38,12 @@ Use this checklist on Day 0/Day 1 after creating a new repo from this template.
 - [ ] `gitleaks`
 - [ ] `codeql`
 - [ ] `ci`
+- [ ] `template-smoke`
 - [ ] If Docker enabled, also require `container-scan` and `dockerfile-lint`.
+- [ ] If developing directly on `main`, monitor `config-sync` runs on each push (do not add `config-sync` as PR required check).
 
 ### Optional Docker module
-- [ ] If project ships Docker image, run `./scripts/init-project.sh --stack <node|python|java|go|rust> --docker on` (or manually rename `.github/workflows/container-scan.yml.disabled`).
+- [ ] If project ships Docker image, run `./scripts/init-project.sh --stack auto --docker on` (or manually rename `.github/workflows/container-scan.yml.disabled`).
 - [ ] Run one manual workflow dispatch for `container-scan` and verify success.
 - [ ] Run one manual workflow dispatch for `dockerfile-lint` and verify success.
 

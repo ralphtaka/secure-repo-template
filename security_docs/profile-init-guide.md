@@ -9,29 +9,29 @@ Before running profile init, template default Dependabot only updates GitHub Act
 ## Command
 
 ```bash
-./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>
+./scripts/init-project.sh --stack auto --docker <on|off>
 ```
 
 Or run everything in one step:
 
 ```bash
-./scripts/bootstrap-project.sh --stack <node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on
+./scripts/bootstrap-project.sh --stack <auto|node|python|java|go|rust> --docker <on|off> --repo <owner/repo> --require-code-scanning-high on
 ```
 
 Examples:
 
 ```bash
+./scripts/init-project.sh --stack auto --docker off --dry-run
+./scripts/init-project.sh --stack auto --docker on
 ./scripts/init-project.sh --stack node --docker off
-./scripts/init-project.sh --stack go --docker on
 ```
 
 ## What the script changes
-- `.github/dependabot.yml`: switched to the selected language profile
-- `.github/workflows/codeql.yml`: writes language-specific CodeQL workflow
-- `.github/workflows/ci.yml`: writes language-specific CI workflow
-- Smoke scaffold: copies minimal runnable files only when target files do not already exist
+- `.github/dependabot.yml`: auto-generated from detected language directories
+- `.github/workflows/codeql.yml`: auto-generated from detected languages
+- `.github/workflows/ci.yml`: auto-generated multi-language CI matrix
 - `.gitignore`: appends or replaces a managed profile block
-- `.stack-profile`: records chosen stack and docker mode
+- `.stack-profile`: records detected languages/directories and docker mode
 - Docker scan workflow is toggled by mode:
 - `--docker on` enables `.github/workflows/container-scan.yml`
 - `--docker off` keeps `.github/workflows/container-scan.yml.disabled`
@@ -41,9 +41,36 @@ Examples:
 - CodeQL and dependency-review behavior can be tuned by repository variables:
 - `CODEQL_MODE`: `auto | off | enforce`
 - `DEPENDENCY_REVIEW_MODE`: `auto | off | enforce`
+- SARIF upload behavior can be tuned by repository variable:
+- `SARIF_UPLOAD_MODE`: `auto | off | enforce`
+
+Optional detection overrides (`.stack-detect.yml`):
+
+```yaml
+include_paths:
+  - apps
+  - services
+exclude_paths:
+  - apps/legacy
+force_languages:
+  - node
+```
+
+Manual single-stack compatibility mode remains available:
+
+```bash
+./scripts/init-project.sh --stack <node|python|java|go|rust> --docker <on|off>
+```
 
 ## Expected next steps
 1. Review the generated diff.
 2. Commit and push.
 3. Open a smoke PR and verify required checks.
 4. Complete GitHub settings from `security_docs/client-project-kickoff-checklist.md`.
+
+## Direct-to-main repositories
+If your team pushes directly to `main`, config sync still works:
+
+1. `config-sync` workflow detects manifest changes on `push main`.
+2. It re-runs auto init and validates generated files.
+3. If generated files drift, it creates a follow-up `[config-sync]` commit automatically.

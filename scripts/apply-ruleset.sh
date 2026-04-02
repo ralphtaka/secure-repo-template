@@ -25,6 +25,7 @@ REQUIRE_CODE_SCANNING_HIGH="off"
 
 checks=()
 skipped_checks=()
+preflight_notes=()
 
 add_check_if_workflow_exists() {
   local context="$1"
@@ -123,11 +124,32 @@ if [[ -z "$REPO" ]]; then
   exit 1
 fi
 
+if [[ "$REQUIRE_CODE_SCANNING_HIGH" == "on" ]]; then
+  advanced_security_status="$(
+    gh api "repos/$REPO" --jq '.security_and_analysis.advanced_security.status // empty' 2>/dev/null || true
+  )"
+  if [[ "$advanced_security_status" != "enabled" ]]; then
+    preflight_notes+=("Code scanning high gate requested but repository advanced security status is '${advanced_security_status:-unknown}'.")
+  fi
+
+  codeql_mode_value="$(
+    gh api "repos/$REPO/actions/variables/CODEQL_MODE" --jq '.value' 2>/dev/null || true
+  )"
+  if [[ "$codeql_mode_value" == "off" ]]; then
+    preflight_notes+=("Repository variable CODEQL_MODE=off may keep CodeQL skipped while code scanning gate is enabled.")
+  fi
+
+  if [[ ! -f "$ROOT_DIR/.github/workflows/codeql.yml" ]]; then
+    preflight_notes+=("Local .github/workflows/codeql.yml is missing; codeql status check may not be emitted.")
+  fi
+fi
+
 add_check_if_workflow_exists "dependency-review" "security-pr.yml"
 add_check_if_workflow_exists "trivy-pr" "security-pr.yml"
 add_check_if_workflow_exists "gitleaks" "secret-scan.yml"
 add_check_if_workflow_exists "codeql" "codeql.yml"
 add_check_if_workflow_exists "ci" "ci.yml"
+add_check_if_workflow_exists "template-smoke" "template-smoke.yml"
 
 if [[ "$DOCKER" == "on" ]]; then
   add_check_if_workflow_exists "container-scan" "container-scan.yml"
@@ -235,6 +257,12 @@ if [[ "$DRY_RUN" == "true" ]]; then
       echo "- $item"
     done
   fi
+  if [[ ${#preflight_notes[@]} -gt 0 ]]; then
+    echo "Preflight notes:"
+    for note in "${preflight_notes[@]}"; do
+      echo "- $note"
+    done
+  fi
   cat "$payload_file"
   exit 0
 fi
@@ -251,6 +279,13 @@ if [[ -n "$existing_id" ]]; then
 else
   gh api --method POST "repos/$REPO/rulesets" --input "$payload_file" >/dev/null
   echo "Created ruleset '$RULESET_NAME' on $REPO"
+fi
+
+if [[ ${#preflight_notes[@]} -gt 0 ]]; then
+  echo "Preflight notes:"
+  for note in "${preflight_notes[@]}"; do
+    echo "- $note"
+  done
 fi
 
 echo "Required checks:"

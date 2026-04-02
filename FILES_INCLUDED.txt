@@ -20,7 +20,9 @@ This template includes:
 - .github/ISSUE_TEMPLATE/config.yml
 - .github/ISSUE_TEMPLATE/security-hardening.md
 - .github/workflows/dependabot-automerge.yml
+- .github/workflows/config-sync.yml
 - .github/workflows/security-pr.yml
+- .github/workflows/template-smoke.yml
 - .github/workflows/secret-scan.yml
 - .github/workflows/security-nightly.yml
 - .github/workflows/dependency-audit-nightly.yml
@@ -66,7 +68,13 @@ This template includes:
 - profiles/rust/smoke/src/lib.rs
 - profiles/rust/gitignore.snippet
 - scripts/init-project.sh
+- scripts/init-project-auto.sh
 - scripts/init-monorepo-node-python.sh
 - scripts/bootstrap-project.sh
 - scripts/install-hooks.sh
 - scripts/apply-ruleset.sh
+- scripts/detect-manifests.sh
+- scripts/resolve-security-feature-mode.sh
+- scripts/validate-generated-configs.sh
+- scripts/smoke-auto-init.sh
+- scripts/has-manifest-changes.sh

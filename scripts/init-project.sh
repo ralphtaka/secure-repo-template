@@ -4,11 +4,12 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/init-project.sh --stack <node|python|java|go|rust> [--docker <on|off>]
+  ./scripts/init-project.sh --stack <node|python|java|go|rust|auto> [--docker <on|off>] [--dry-run]
 
 Examples:
   ./scripts/init-project.sh --stack node --docker off
   ./scripts/init-project.sh --stack go --docker on
+  ./scripts/init-project.sh --stack auto --docker off --dry-run
 EOF
 }
 
@@ -41,6 +42,7 @@ print_gitleaks_hint() {
 
 STACK=""
 DOCKER="off"
+DRY_RUN="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -51,6 +53,10 @@ while [[ $# -gt 0 ]]; do
     --docker)
       DOCKER="${2:-}"
       shift 2
+      ;;
+    --dry-run)
+      DRY_RUN="true"
+      shift 1
       ;;
     --help|-h)
       usage
@@ -70,7 +76,7 @@ if [[ -z "$STACK" ]]; then
   exit 1
 fi
 
-if [[ "$STACK" != "node" && "$STACK" != "python" && "$STACK" != "java" && "$STACK" != "go" && "$STACK" != "rust" ]]; then
+if [[ "$STACK" != "node" && "$STACK" != "python" && "$STACK" != "java" && "$STACK" != "go" && "$STACK" != "rust" && "$STACK" != "auto" ]]; then
   echo "Invalid --stack value: $STACK" >&2
   exit 1
 fi
@@ -81,6 +87,16 @@ if [[ "$DOCKER" != "on" && "$DOCKER" != "off" ]]; then
 fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ "$STACK" == "auto" ]]; then
+  cmd=("$ROOT_DIR/scripts/init-project-auto.sh" --docker "$DOCKER")
+  if [[ "$DRY_RUN" == "true" ]]; then
+    cmd+=(--dry-run)
+  fi
+  "${cmd[@]}"
+  exit 0
+fi
+
 PROFILE_DIR="$ROOT_DIR/profiles/$STACK"
 DEPENDABOT_TARGET="$ROOT_DIR/.github/dependabot.yml"
 GITIGNORE_TARGET="$ROOT_DIR/.gitignore"
@@ -102,6 +118,26 @@ if [[ "$DOCKER" == "on" ]]; then
   DEPENDABOT_SOURCE="$PROFILE_DIR/dependabot-docker.yml"
 else
   DEPENDABOT_SOURCE="$PROFILE_DIR/dependabot.yml"
+fi
+
+if [[ "$DRY_RUN" == "true" ]]; then
+  echo "Profile dry-run:"
+  echo "- stack: $STACK"
+  echo "- docker: $DOCKER"
+  echo "Planned updates:"
+  echo "- .github/dependabot.yml (from profiles/$STACK)"
+  echo "- .github/workflows/codeql.yml (from profiles/$STACK)"
+  echo "- .github/workflows/ci.yml (from profiles/$STACK)"
+  echo "- .gitignore (profile marker block)"
+  echo "- .stack-profile"
+  if [[ "$DOCKER" == "on" ]]; then
+    echo "- .github/workflows/container-scan.yml (enabled if present)"
+    echo "- .github/workflows/dockerfile-lint.yml (enabled if present)"
+  else
+    echo "- .github/workflows/container-scan.yml.disabled (kept disabled if present)"
+    echo "- .github/workflows/dockerfile-lint.yml.disabled (kept disabled if present)"
+  fi
+  exit 0
 fi
 
 if [[ ! -f "$DEPENDABOT_SOURCE" ]]; then
