@@ -36,7 +36,22 @@ copy_repo() {
 assert_file_contains() {
   local file="$1"
   local pattern="$2"
-  if ! rg -q "$pattern" "$file"; then
+  if command -v rg >/dev/null 2>&1; then
+    if rg -q --fixed-strings "$pattern" "$file"; then
+      return 0
+    fi
+  else
+    if grep -Fq "$pattern" "$file"; then
+      return 0
+    fi
+  fi
+
+  if [[ ! -f "$file" ]]; then
+    echo "Smoke assertion failed: file not found: $file" >&2
+    exit 1
+  fi
+
+  if ! grep -Fq "$pattern" "$file"; then
     echo "Smoke assertion failed: pattern '$pattern' not found in $file" >&2
     exit 1
   fi

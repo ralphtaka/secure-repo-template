@@ -51,15 +51,27 @@ if [[ -z "$changed_files" ]]; then
 fi
 
 matched_files="$(
-  echo "$changed_files" | rg -N \
-    -e '(^|/)package\.json$' \
-    -e '(^|/)requirements[^/]*\.txt$' \
-    -e '(^|/)pyproject\.toml$' \
-    -e '(^|/)pom\.xml$' \
-    -e '(^|/)go\.mod$' \
-    -e '(^|/)Cargo\.toml$' \
-    -e '^\.stack-detect\.yml$' \
-    || true
+  if command -v rg >/dev/null 2>&1; then
+    echo "$changed_files" | rg -N \
+      -e '(^|/)package\.json$' \
+      -e '(^|/)requirements[^/]*\.txt$' \
+      -e '(^|/)pyproject\.toml$' \
+      -e '(^|/)pom\.xml$' \
+      -e '(^|/)go\.mod$' \
+      -e '(^|/)Cargo\.toml$' \
+      -e '^\.stack-detect\.yml$' \
+      || true
+  else
+    echo "$changed_files" | grep -E \
+      -e '(^|/)package\.json$' \
+      -e '(^|/)requirements[^/]*\.txt$' \
+      -e '(^|/)pyproject\.toml$' \
+      -e '(^|/)pom\.xml$' \
+      -e '(^|/)go\.mod$' \
+      -e '(^|/)Cargo\.toml$' \
+      -e '^\.stack-detect\.yml$' \
+      || true
+  fi
 )"
 
 if [[ -n "$matched_files" ]]; then
