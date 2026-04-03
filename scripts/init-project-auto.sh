@@ -37,12 +37,26 @@ print_gitleaks_hint() {
 
 split_csv() {
   local csv="${1:-}"
-  local -n output_ref=$2
-  output_ref=()
+  local output_name="${2:-}"
+  local -a parts=()
+  local item
+  local assignments=""
+
+  if [[ ! "$output_name" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+    echo "split_csv: invalid output variable name: $output_name" >&2
+    return 1
+  fi
+
+  eval "$output_name=()"
   if [[ -z "$csv" ]]; then
     return 0
   fi
-  IFS=',' read -r -a output_ref <<< "$csv"
+
+  IFS=',' read -r -a parts <<< "$csv"
+  for item in "${parts[@]}"; do
+    assignments+=" $(printf '%q' "$item")"
+  done
+  eval "$output_name=($assignments)"
 }
 
 normalize_lang_name() {
