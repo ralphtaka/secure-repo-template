@@ -280,20 +280,32 @@ EOF
     done
   }
 
-  append_dependabot_updates "node" "${NODE_DIRS[@]}"
-  append_dependabot_updates "python" "${PYTHON_DIRS[@]}"
-  append_dependabot_updates "java" "${JAVA_DIRS[@]}"
-  append_dependabot_updates "go" "${GO_DIRS[@]}"
-  append_dependabot_updates "rust" "${RUST_DIRS[@]}"
+  if [[ "${NODE_DIRS+set}" == "set" && ${#NODE_DIRS[@]} -gt 0 ]]; then
+    append_dependabot_updates "node" "${NODE_DIRS[@]}"
+  fi
+  if [[ "${PYTHON_DIRS+set}" == "set" && ${#PYTHON_DIRS[@]} -gt 0 ]]; then
+    append_dependabot_updates "python" "${PYTHON_DIRS[@]}"
+  fi
+  if [[ "${JAVA_DIRS+set}" == "set" && ${#JAVA_DIRS[@]} -gt 0 ]]; then
+    append_dependabot_updates "java" "${JAVA_DIRS[@]}"
+  fi
+  if [[ "${GO_DIRS+set}" == "set" && ${#GO_DIRS[@]} -gt 0 ]]; then
+    append_dependabot_updates "go" "${GO_DIRS[@]}"
+  fi
+  if [[ "${RUST_DIRS+set}" == "set" && ${#RUST_DIRS[@]} -gt 0 ]]; then
+    append_dependabot_updates "rust" "${RUST_DIRS[@]}"
+  fi
 } > "$DEPENDABOT_TARGET"
 
 codeql_languages=()
-for lang in "${LANGUAGES[@]}"; do
-  [[ -z "$lang" ]] && continue
-  mapped="$(profile_language_to_codeql "$(normalize_lang_name "$lang")" || true)"
-  [[ -z "$mapped" ]] && continue
-  codeql_languages+=("$mapped")
-done
+if [[ "${LANGUAGES+set}" == "set" && ${#LANGUAGES[@]} -gt 0 ]]; then
+  for lang in "${LANGUAGES[@]}"; do
+    [[ -z "$lang" ]] && continue
+    mapped="$(profile_language_to_codeql "$(normalize_lang_name "$lang")" || true)"
+    [[ -z "$mapped" ]] && continue
+    codeql_languages+=("$mapped")
+  done
+fi
 
 codeql_lang_csv=""
 if [[ ${#codeql_languages[@]} -gt 0 ]]; then
@@ -645,13 +657,15 @@ awk -v start="$PROFILE_MARKER_START" -v end="$PROFILE_MARKER_END" '
   echo "$PROFILE_MARKER_START"
   echo "# stack=auto"
   echo "# languages=${LANGUAGES_CSV:-none}"
-  for lang in "${LANGUAGES[@]}"; do
-    [[ -z "$lang" ]] && continue
-    snippet_path="$ROOT_DIR/profiles/$lang/gitignore.snippet"
-    if [[ -f "$snippet_path" ]]; then
-      cat "$snippet_path"
-    fi
-  done
+  if [[ "${LANGUAGES+set}" == "set" && ${#LANGUAGES[@]} -gt 0 ]]; then
+    for lang in "${LANGUAGES[@]}"; do
+      [[ -z "$lang" ]] && continue
+      snippet_path="$ROOT_DIR/profiles/$lang/gitignore.snippet"
+      if [[ -f "$snippet_path" ]]; then
+        cat "$snippet_path"
+      fi
+    done
+  fi
   echo "$PROFILE_MARKER_END"
 } > "$GITIGNORE_TARGET"
 rm -f "$TMP_FILE"

@@ -176,7 +176,13 @@ fi
 find_files() {
   local name="$1"
   shift
-  local -a excludes=("${COMMON_EXCLUDES[@]}" "${CONFIG_EXCLUDES[@]}" "$@")
+  local -a excludes=("${COMMON_EXCLUDES[@]}")
+  if [[ "${CONFIG_EXCLUDES+set}" == "set" && ${#CONFIG_EXCLUDES[@]} -gt 0 ]]; then
+    excludes+=("${CONFIG_EXCLUDES[@]}")
+  fi
+  if [[ $# -gt 0 ]]; then
+    excludes+=("$@")
+  fi
   local -a cmd=(find "${SCAN_ROOTS[@]}" -type f -name "$name")
   local pattern
   for pattern in "${excludes[@]}"; do
@@ -272,15 +278,17 @@ RUST=false
 [[ -n "$GO_DIRS" ]] && GO=true
 [[ -n "$RUST_DIRS" ]] && RUST=true
 
-for forced_lang in "${FORCE_LANGUAGES[@]}"; do
-  case "$forced_lang" in
-    node) NODE=true ;;
-    python) PYTHON=true ;;
-    java) JAVA=true ;;
-    go) GO=true ;;
-    rust) RUST=true ;;
-  esac
-done
+if [[ "${FORCE_LANGUAGES+set}" == "set" && ${#FORCE_LANGUAGES[@]} -gt 0 ]]; then
+  for forced_lang in "${FORCE_LANGUAGES[@]}"; do
+    case "$forced_lang" in
+      node) NODE=true ;;
+      python) PYTHON=true ;;
+      java) JAVA=true ;;
+      go) GO=true ;;
+      rust) RUST=true ;;
+    esac
+  done
+fi
 
 LANGUAGES=""
 [[ "$NODE" == "true" ]] && LANGUAGES="$(merge_unique_lines "$LANGUAGES" "node")"
