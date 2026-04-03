@@ -116,7 +116,7 @@ dependabot_directory() {
 
 DOCKER="off"
 DRY_RUN="false"
-CONFIG_ARGS=()
+declare -a CONFIG_ARGS=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -165,7 +165,11 @@ DOCKER_LINT_DISABLED="$ROOT_DIR/.github/workflows/dockerfile-lint.yml.disabled"
 PROFILE_MARKER_START="# >>> stack-profile:start >>>"
 PROFILE_MARKER_END="# <<< stack-profile:end <<<"
 
-DETECT_KV="$("$ROOT_DIR/scripts/detect-manifests.sh" --root "$ROOT_DIR" --format kv "${CONFIG_ARGS[@]}")"
+detect_cmd=("$ROOT_DIR/scripts/detect-manifests.sh" --root "$ROOT_DIR" --format kv)
+if [[ "${CONFIG_ARGS+set}" == "set" && ${#CONFIG_ARGS[@]} -gt 0 ]]; then
+  detect_cmd+=("${CONFIG_ARGS[@]}")
+fi
+DETECT_KV="$("${detect_cmd[@]}")"
 
 NODE="false"
 PYTHON="false"
